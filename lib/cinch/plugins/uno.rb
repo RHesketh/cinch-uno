@@ -7,7 +7,7 @@ module Cinch
 			match /fart/i, method: :help
 
 			def help(m)
-				m.reply("Fart.")
+				m.reply("Farting.")
 			end
 		end
 	end
