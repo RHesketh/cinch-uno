@@ -6,8 +6,8 @@ module Cinch
 
 			match /fart/i, method: :help
 
-			def help(m, plugin)
-				say ("Fart.")
+			def help(m)
+				m.reply("Fart.")
 			end
 		end
 	end
