@@ -5,9 +5,8 @@ module Uno
     attr_reader :draw_pile
     attr_reader :play_order
     attr_reader :players
-    
 
-    def current_player_name
+    def current_player
       @play_order[@current_player]
     end
 
@@ -29,7 +28,7 @@ module Uno
       @play_order = options[:static_play_order] == false ? @players.keys : @players.keys.shuffle
       @current_player = 0
 
-      deal_starting_cards_to_all_players if @players[current_player_name][:cards].nil?
+      deal_starting_cards_to_all_players if @players[current_player][:cards].nil?
 
       @state = :waiting_for_player
     end
@@ -39,11 +38,21 @@ module Uno
     end
 
     def play(player_name, card_played)
+      raise GameIsOver if @state == :game_over
       raise GameHasNotStarted unless @state == :waiting_for_player
-      raise NotPlayersTurn unless current_player_name == player_name
+      raise NotPlayersTurn unless current_player == player_name
+
+      removed_card = remove_card_from_hand(player_name, card_played)
+      raise PlayerDoesNotHaveThatCard if removed_card.nil?
 
       top_card = discard_pile.last
       raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
+
+      @discard_pile.push removed_card
+
+      @state = :game_over if player_has_no_cards_left(current_player)
+
+      @current_player = ((@current_player + 1) % @players.length)
     end
 
     # Errors
@@ -52,8 +61,21 @@ module Uno
     class PlayerAlreadyInGame < StandardError; end
     class NotPlayersTurn < StandardError; end
     class InvalidMove < StandardError; end
+    class PlayerDoesNotHaveThatCard < StandardError; end 
+    class GameIsOver < StandardError; end 
 
     private 
+
+    def player_has_no_cards_left(player_name)
+      return true if players[player_name][:cards].count == 0
+      return false
+    end
+
+    def remove_card_from_hand(player_name, card_played)
+      index = players[player_name][:cards].find_index{|c| c == card_played}
+      return nil if index.nil?
+      players[player_name][:cards].delete_at(index)
+    end
 
     def deal_starting_cards_to_all_players
       @players.keys.each do |player|

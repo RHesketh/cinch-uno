@@ -7,5 +7,10 @@ module Uno
       @type = type
       @color = color
     end
+
+    def ==(b)
+      return true if (self.color == b.color && self.type == b.type)
+      return false
+    end
   end
 end
