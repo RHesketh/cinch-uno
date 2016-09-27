@@ -3,7 +3,6 @@ module Cinch
 		# Interfaces with Cinch and IRC chatters
 		class Uno
 			include Cinch::Plugin
-			set plugin_name: "Uno"
 
 			match /fart/i, method: :help
 
