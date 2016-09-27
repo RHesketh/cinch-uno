@@ -122,7 +122,7 @@ module Uno
       let(:game){ Uno::Game.new(players: fake_players)}
 
       before(:each) do 
-        game.start(static_play_order: false, shuffle_deck: false)
+        game.start(static_play_order: true, shuffle_deck: false)
       end
 
       it "Moves are only accepted from players who are in the game" do 
@@ -173,6 +173,45 @@ module Uno
       end
     end
 
+    context "When a player skips instead of taking their turn" do 
+      let(:fake_players) { { "Char" => {}, "angelphish" => {} } }
+      let(:game){ Uno::Game.new(players: fake_players)}
+
+      before(:each) do 
+        game.start(static_play_order: true, shuffle_deck: false)
+      end
+
+      it "Control goes to the next player" do 
+        current_player = game.play_order.find_index(game.current_player)
+        next_player = current_player + 1 % game.players.length
+
+        game.skip("Char")
+
+        expect(game.current_player).to eq game.players.keys[next_player]
+      end
+
+      it "The skipping player must pick up a card" do 
+        skipping_player = "Char"
+        number_of_cards_beforehand = game.players[skipping_player][:cards].length
+
+        game.skip(skipping_player)
+
+        expect(game.players[skipping_player][:cards].length).to be > number_of_cards_beforehand
+      end
+
+      it "A player cannot skip if it is not their turn" do 
+        expect(game.current_player).to eq "Char"
+
+        expect{game.skip("angelphish")}.to raise_error(Game::NotPlayersTurn)
+      end
+
+      it "A player cannot skip if they are not playing" do
+        expect(game.current_player).to eq "Char"
+
+        expect{game.skip("foo12")}.to raise_error(Game::NotPlayersTurn)
+      end
+    end
+
     context "When a valid move is made..." do 
       let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
       let(:fake_info) {{:cards => fake_hand}}
@@ -182,7 +221,7 @@ module Uno
       let(:game){ Uno::Game.new(players: fake_players)}
 
       before(:each) do 
-        game.start(static_play_order: false, shuffle_deck: false)
+        game.start(static_play_order: true, shuffle_deck: false)
         game.play(going_player, played_card)
       end
 

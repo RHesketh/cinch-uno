@@ -25,7 +25,7 @@ module Uno
 
       @discard_pile = [@deck.pop]
       @draw_pile = @deck
-      @play_order = options[:static_play_order] == false ? @players.keys : @players.keys.shuffle
+      @play_order = options[:static_play_order] != false ? @players.keys : @players.keys.shuffle
       @current_player = 0
 
       deal_starting_cards_to_all_players if @players[current_player][:cards].nil?
@@ -51,6 +51,14 @@ module Uno
       @discard_pile.push removed_card
 
       @state = :game_over if player_has_no_cards_left(current_player)
+
+      @current_player = ((@current_player + 1) % @players.length)
+    end
+
+    def skip(player_name)
+      raise NotPlayersTurn if player_name != current_player
+
+      @players[current_player][:cards] << @draw_pile.pop
 
       @current_player = ((@current_player + 1) % @players.length)
     end
