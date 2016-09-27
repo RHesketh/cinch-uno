@@ -115,8 +115,8 @@ module Uno
       end
     end
 
-    context "When a player gives their move..." do
-      let(:fake_hand) {[Uno::Card.new(color: :red, type: :one), Uno::Card.new(color: :red, type: :zero)]}
+    context "When a player makes their move..." do
+      let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
       let(:fake_info) {{:cards => fake_hand}}
       let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
       let(:game){ Uno::Game.new(players: fake_players)}
@@ -138,6 +138,33 @@ module Uno
           game.play("angelphish", Uno::Card.new)
         }.to raise_error(Game::NotPlayersTurn)
       end
+
+      it "Valid move: Playing a card matching the color of the card on top of the discard pile" do 
+        expect(game.discard_pile.last.type).to eq :zero
+        expect(game.discard_pile.last.color).to eq :red
+
+        expect{
+          game.play("Char", Uno::Card.new(:zero, :blue))
+        }.not_to raise_error
+      end
+
+      it "Valid move: Playing a card matching the number of the card on top of the discard pile" do 
+        expect(game.discard_pile.last.type).to eq :zero
+        expect(game.discard_pile.last.color).to eq :red
+
+        expect{
+          game.play("Char", Uno::Card.new(:one, :red))
+        }.not_to raise_error
+      end
+
+      it "Invalid move: Playing a card that does not match the color or number of the card on top of the discard pile" do 
+        expect(game.discard_pile.last.type).to eq :zero
+        expect(game.discard_pile.last.color).to eq :red
+
+        expect{
+          game.play("Char", Uno::Card.new(:two, :yellow))
+        }.to raise_error(Game::InvalidMove)
+      end
     end
 
     context "When a valid move is made..." do 
@@ -150,16 +177,6 @@ module Uno
        xit "The card that was just played is now on top of the discard pile"
        xit "Gameplay moves to the next player in the list"
        xit "The state should still be :waiting_for_player"
-      end
-    end
-
-    context "Valid moves..." do
-      xit "Match the color on top of the discard pile"
-      xit "Match the type on top of the discard pile"
-    end
-
-    context "Invalid moves..." do
-      xit "Do not match the color or the type" do 
       end
     end
   end

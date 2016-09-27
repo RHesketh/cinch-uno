@@ -41,6 +41,9 @@ module Uno
     def play(player_name, card_played)
       raise GameHasNotStarted unless @state == :waiting_for_player
       raise NotPlayersTurn unless current_player_name == player_name
+
+      top_card = discard_pile.last
+      raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
     end
 
     # Errors
@@ -48,6 +51,7 @@ module Uno
     class NotEnoughPlayers < StandardError; end
     class PlayerAlreadyInGame < StandardError; end
     class NotPlayersTurn < StandardError; end
+    class InvalidMove < StandardError; end
 
     private 
 
