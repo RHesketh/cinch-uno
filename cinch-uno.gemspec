@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'cinch-uno'
-  s.version = '0.0.2'
+  s.version = '0.0.3'
   s.summary = 'A plugin that allows you to play the popular card game.'
   s.description = s.summary
   s.authors = ['Robert Hesketh']
