@@ -25,6 +25,12 @@ end
 
 bot.start
 ```
+## Tests
+The plugin has rspec tests. To run them 
+`rspec`
+
+You may need to `bundle install` first.
+
 ## Commands
 
 ```
