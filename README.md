@@ -36,7 +36,3 @@ You may need to `bundle install` first.
 ```
 uno - Starts a game of Uno and waits for players to join. 
 ```
-
-## Options
-### :fake
-Ignore this, it is just an example.
