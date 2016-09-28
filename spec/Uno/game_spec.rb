@@ -228,7 +228,7 @@ module Uno
       context "If that was the player's last card" do 
         let(:fake_hand) {[Uno::Card.new(:one, :red)]}
 
-        it "The state should be :game_over" do 
+        it "The state is :game_over" do 
           expect(game.state).to be :game_over
         end
 
@@ -256,9 +256,21 @@ module Uno
         expect(game.current_player).to eq game.players.keys[next_player]
        end
 
-       it "The state should still be :waiting_for_player" do 
+       it "The state is still :waiting_for_player" do 
         expect(game.state).to be :waiting_for_player
        end
+      end
+
+      context "Action cards" do 
+        describe "Reverse" do 
+          it "Switches the direction of the play order when played" do
+
+          end
+
+          it "Acts like a Skip card if there's only two players" do
+            
+          end
+        end
       end
     end
   end
