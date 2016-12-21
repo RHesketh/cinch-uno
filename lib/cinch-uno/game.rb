@@ -46,7 +46,9 @@ module Uno
       raise PlayerDoesNotHaveThatCard if removed_card.nil?
 
       top_card = discard_pile.last
+
       raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
+      move_to_next_player if card_played.type == :skip
 
       @discard_pile.push removed_card
 

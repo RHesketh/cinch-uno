@@ -260,16 +260,30 @@ module Uno
         expect(game.state).to be :waiting_for_player
        end
       end
+    end
 
-      context "Action cards" do 
-        describe "Reverse" do 
-          it "Switches the direction of the play order when played" do
+    context "Action cards" do
+      let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
+      let(:fake_info) {{:cards => fake_hand}}
+      let(:going_player) { "Char"}
+      let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info, "trich" => fake_info} }
+      let(:game){ Uno::Game.new(players: fake_players)}
 
-          end
 
-          it "Acts like a Skip card if there's only two players" do
-            
-          end
+      describe "Skip" do
+        let(:fake_hand) {[Uno::Card.new(:skip, :red), Uno::Card.new(:one, :red)]}
+
+        before(:each) do
+          game.start(static_play_order: true, shuffle_deck: false)
+        end
+
+
+        it "Skips the next player in the play order" do
+          expect(game.current_player).to eq "Char"
+
+          game.play(going_player, fake_hand.first)
+
+          expect(game.current_player).to eq "trich"
         end
       end
     end
