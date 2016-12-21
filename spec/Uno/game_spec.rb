@@ -288,7 +288,7 @@ module Uno
         begin
           game.play(going_player, played_card)
         rescue
-          # Throws an exception but we don't care for this tes
+          # Throws an exception but we don't care for this test
         end
       end
 
