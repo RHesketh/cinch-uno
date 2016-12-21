@@ -117,7 +117,7 @@ module Uno
       xit "Can't add players once the game has started"
     end
 
-    context "When a player makes their move..." do
+    context "Move validation" do
       let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue), Uno::Card.new(:two, :yellow)]}
       let(:fake_info) {{:cards => fake_hand}}
       let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
