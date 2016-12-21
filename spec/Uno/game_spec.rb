@@ -113,6 +113,8 @@ module Uno
         game.start
         expect(game.state).to be :waiting_for_player
       end
+
+      xit "Can't add players once the game has started"
     end
 
     context "When a player makes their move..." do
