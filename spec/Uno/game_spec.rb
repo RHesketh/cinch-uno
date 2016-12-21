@@ -114,7 +114,13 @@ module Uno
         expect(game.state).to be :waiting_for_player
       end
 
-      xit "Can't add players once the game has started"
+      it "Can't add players once the game has started" do
+        game.start
+        player_count = game.players.count
+
+        expect{game.add_player("Gatecrasher")}.to raise_error(Game::GameHasStarted)
+        expect(game.players.count).to eq player_count
+      end
     end
 
     context "Move validation" do

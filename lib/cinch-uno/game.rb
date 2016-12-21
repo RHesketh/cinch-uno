@@ -34,6 +34,8 @@ module Uno
     end
 
     def add_player(nickname)
+      raise GameIsOver if @state == :game_over
+      raise GameHasStarted unless @state == :waiting_to_start
       @players[nickname] = {}
     end
 
@@ -67,7 +69,9 @@ module Uno
     end
 
     # Errors
+    # Todo: Add "Error" onto all their names
     class GameHasNotStarted < StandardError; end
+    class GameHasStarted < StandardError; end
     class NotEnoughPlayers < StandardError; end
     class PlayerAlreadyInGame < StandardError; end
     class NotPlayersTurn < StandardError; end
