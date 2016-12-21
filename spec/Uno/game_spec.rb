@@ -271,6 +271,36 @@ module Uno
       let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info, "trich" => fake_info} }
       let(:game){ Uno::Game.new(players: fake_players)}
 
+      describe "Reverse" do 
+        let(:fake_hand) {[Uno::Card.new(:reverse, :red), Uno::Card.new(:one, :red)]}
+
+        before(:each) do 
+          game.start(static_play_order: true, shuffle_deck: false)
+        end
+
+        it "Switches the direction of the play order when played" do
+          original_play_order = game.play_order
+          game.play(going_player, fake_hand.first)
+          expect(game.play_order).to eq original_play_order.reverse
+        end
+
+        context "When there are only two players" do
+          let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info} }
+          it "Acts like a Skip card" do
+            expect(game.current_player).to eq "Char"
+
+            game.play(going_player, fake_hand.first)
+
+            expect(game.current_player).to eq "Char"
+          end
+
+          it "Does not reverse the order" do
+            original_play_order = game.play_order
+            game.play(going_player, fake_hand.first)
+            expect(game.play_order).to eq original_play_order
+          end
+        end
+      end
 
       describe "Skip" do
         let(:fake_hand) {[Uno::Card.new(:skip, :red), Uno::Card.new(:one, :red)]}

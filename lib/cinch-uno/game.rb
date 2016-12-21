@@ -48,7 +48,8 @@ module Uno
       top_card = discard_pile.last
 
       raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
-      move_to_next_player if card_played.type == :skip
+      move_to_next_player if card_played.type == :skip || removed_card.type == :reverse && @players.count <= 2
+      reverse_play_order if card_played.type == :reverse && @players.count > 2
 
       @discard_pile.push removed_card
 
@@ -78,6 +79,10 @@ module Uno
 
     def move_to_next_player
       @current_player = ((@current_player + 1) % @players.length)
+    end
+
+    def reverse_play_order
+      @play_order = @play_order.reverse
     end
 
     def player_has_no_cards_left(player_name)
