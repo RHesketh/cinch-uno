@@ -19,7 +19,7 @@ module Uno
     end
 
     def start(options={})
-      raise NotEnoughPlayers unless @players.count >= 2 
+      raise NotEnoughPlayers unless @players.count >= 2
 
       @deck.shuffle! unless options[:shuffle_deck] == false
 

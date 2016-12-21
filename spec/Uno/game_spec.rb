@@ -18,13 +18,13 @@ module Uno
     end
 
     context "While waiting to start..." do
-      it "Don't start the game unless there are at least 2 players" do 
+      it "Don't start the game unless there are at least 2 players" do
         expect{
           game.start
         }.to raise_error(Game::NotEnoughPlayers)
       end
 
-      it "Allow multiple players to join the game" do 
+      it "Allow multiple players to join the game" do
         game.add_player("Char")
         game.add_player("angelphish")
 
@@ -36,14 +36,14 @@ module Uno
         expect(game.players.length).to eq 2
       end
 
-      it "Do nothing if a player tries to join twice" do 
+      it "Do nothing if a player tries to join twice" do
         game.add_player("Char")
         game.add_player("Char")
 
         expect(game.players.length).to eq 1
       end
 
-      it "Moves are not accepted" do 
+      it "Moves are not accepted" do
         expect{
           game.play("foo12", Uno::Card.new)
         }.to raise_error(Game::GameHasNotStarted)
@@ -54,7 +54,7 @@ module Uno
       let(:fake_players) { { "Char" => {}, "angelphish" => {} } }
       let(:game){ Uno::Game.new(players: fake_players)}
 
-      it "Generate a deck to play with" do 
+      it "Generate a deck to play with" do
         expect(Uno::Deck).to receive(:generate).and_call_original
 
         game.start
@@ -68,9 +68,9 @@ module Uno
         new_game.start
       end
 
-      it "Deals 7 cards to each player" do 
+      it "Deals 7 cards to each player" do
         game.start
-        
+
         game.players.each do |player, info|
           expect(info[:cards]).to be_an Array
           expect(info[:cards].length).to eq 7
@@ -86,7 +86,7 @@ module Uno
         expect(new_game.discard_pile.last).to be_a Uno::Card
       end
 
-      it "Place the remaining cards from the deck into a draw pile" do 
+      it "Place the remaining cards from the deck into a draw pile" do
         new_game = Uno::Game.new(deck: fake_deck, players: fake_players)
         new_game.start
 
@@ -95,14 +95,14 @@ module Uno
         expect(new_game.draw_pile.last).to be_a Uno::Card
       end
 
-      it "Determine a play order" do 
+      it "Determine a play order" do
         game.start
 
         expect(game.play_order).to be_an Array
         expect(game.play_order.length).to eq 2
       end
 
-      it "Expose the current player's name" do 
+      it "Expose the current player's name" do
         game.start
 
         expect(game.current_player).to be_a String
@@ -125,7 +125,7 @@ module Uno
         game.start(static_play_order: true, shuffle_deck: false)
       end
 
-      it "Moves are only accepted from players who are in the game" do 
+      it "Moves are only accepted from players who are in the game" do
         expect{
           game.play("foo12", Uno::Card.new)
         }.to raise_error(Game::NotPlayersTurn)
@@ -145,7 +145,7 @@ module Uno
         }.to raise_error(Game::PlayerDoesNotHaveThatCard)
       end
 
-      it "Valid move: Playing a card matching the color of the card on top of the discard pile" do 
+      it "Valid move: Playing a card matching the color of the card on top of the discard pile" do
         expect(game.discard_pile.last.type).to eq :zero
         expect(game.discard_pile.last.color).to eq :red
 
@@ -154,7 +154,7 @@ module Uno
         }.not_to raise_error
       end
 
-      it "Valid move: Playing a card matching the number of the card on top of the discard pile" do 
+      it "Valid move: Playing a card matching the number of the card on top of the discard pile" do
         expect(game.discard_pile.last.type).to eq :zero
         expect(game.discard_pile.last.color).to eq :red
 
@@ -163,7 +163,7 @@ module Uno
         }.not_to raise_error
       end
 
-      it "Invalid move: Playing a card that does not match the color or number of the card on top of the discard pile" do 
+      it "Invalid move: Playing a card that does not match the color or number of the card on top of the discard pile" do
         expect(game.discard_pile.last.type).to eq :zero
         expect(game.discard_pile.last.color).to eq :red
 
@@ -173,7 +173,7 @@ module Uno
       end
     end
 
-    context "When a player skips instead of taking their turn" do 
+    context "When a player skips instead of taking their turn" do
       let(:fake_players) { { "Char" => {}, "angelphish" => {} } }
       let(:game){ Uno::Game.new(players: fake_players)}
 
@@ -181,7 +181,7 @@ module Uno
         game.start(static_play_order: true, shuffle_deck: false)
       end
 
-      it "Control goes to the next player" do 
+      it "Control goes to the next player" do
         current_player = game.play_order.find_index(game.current_player)
         next_player = current_player + 1 % game.players.length
 
@@ -190,7 +190,7 @@ module Uno
         expect(game.current_player).to eq game.players.keys[next_player]
       end
 
-      it "The skipping player must pick up a card" do 
+      it "The skipping player picks up a card" do 
         skipping_player = "Char"
         number_of_cards_beforehand = game.players[skipping_player][:cards].length
 
@@ -199,7 +199,7 @@ module Uno
         expect(game.players[skipping_player][:cards].length).to be > number_of_cards_beforehand
       end
 
-      it "A player cannot skip if it is not their turn" do 
+      it "A player cannot skip if it is not their turn" do
         expect(game.current_player).to eq "Char"
 
         expect{game.skip("angelphish")}.to raise_error(Game::NotPlayersTurn)
@@ -212,7 +212,7 @@ module Uno
       end
     end
 
-    context "When a valid move is made..." do 
+    context "When a valid move is made..." do
       let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
       let(:fake_info) {{:cards => fake_hand}}
       let(:going_player) { "Char"}
@@ -220,19 +220,19 @@ module Uno
       let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
       let(:game){ Uno::Game.new(players: fake_players)}
 
-      before(:each) do 
+      before(:each) do
         game.start(static_play_order: true, shuffle_deck: false)
         game.play(going_player, played_card)
       end
 
-      context "If that was the player's last card" do 
+      context "If that was the player's last card" do
         let(:fake_hand) {[Uno::Card.new(:one, :red)]}
 
-        it "The state is :game_over" do 
+        it "The state is :game_over" do
           expect(game.state).to be :game_over
         end
 
-        it "No further moves are accepted" do 
+        it "No further moves are accepted" do
         expect{
           game.play("Char", Uno::Card.new(:two, :yellow))
         }.to raise_error(Game::GameIsOver)
