@@ -44,12 +44,12 @@ module Uno
       raise GameHasNotStarted unless @state == :waiting_for_player
       raise NotPlayersTurn unless current_player == player_name
 
+      top_card = discard_pile.last
+      raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
+
       removed_card = remove_card_from_hand(player_name, card_played)
       raise PlayerDoesNotHaveThatCard if removed_card.nil?
 
-      top_card = discard_pile.last
-
-      raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
       move_to_next_player if card_played.type == :skip || removed_card.type == :reverse && @players.count <= 2
       reverse_play_order if card_played.type == :reverse && @players.count > 2
 

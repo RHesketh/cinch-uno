@@ -270,6 +270,38 @@ module Uno
       end
     end
 
+    context "When an invalid move is made..." do
+      let(:fake_hand) {[Uno::Card.new(:five, :green), Uno::Card.new(:six, :yellow)]}
+      let(:fake_info) {{:cards => fake_hand}}
+      let(:going_player) { "Char"}
+      let(:played_card) {fake_hand.last}
+      let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
+      let(:game){ Uno::Game.new(players: fake_players)}
+
+      before(:each) do
+        @starting_hand = fake_hand.dup
+
+        game.start(static_play_order: true, shuffle_deck: false)
+
+        expect(game.discard_pile.last.type).to eq :zero
+        expect(game.discard_pile.last.color).to eq :red
+        begin
+          game.play(going_player, played_card)
+        rescue
+          # Throws an exception but we don't care for this tes
+        end
+      end
+
+      it "Does not remove the played card from the player's hand" do
+        expect(game.players[going_player][:cards]).to eq @starting_hand
+      end
+
+      it "Does not move to the next player" do
+        expect(game.current_player).to eq going_player
+      end
+
+    end
+
     context "Action cards" do
       let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
       let(:fake_info) {{:cards => fake_hand}}
