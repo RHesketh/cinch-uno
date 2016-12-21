@@ -52,7 +52,7 @@ module Uno
 
       @state = :game_over if player_has_no_cards_left(current_player)
 
-      @current_player = ((@current_player + 1) % @players.length)
+      move_to_next_player
     end
 
     def skip(player_name)
@@ -72,7 +72,11 @@ module Uno
     class PlayerDoesNotHaveThatCard < StandardError; end 
     class GameIsOver < StandardError; end 
 
-    private 
+    private
+
+    def move_to_next_player
+      @current_player = ((@current_player + 1) % @players.length)
+    end
 
     def player_has_no_cards_left(player_name)
       return true if players[player_name][:cards].count == 0
