@@ -16,6 +16,13 @@ module Uno
 
         return false
       end
+
+      def play_is_reversed?(card_played, player_count)
+        return false if player_count <= 2
+        return true if card_played.type == :reverse
+
+        return false
+      end
     end
   end
 end

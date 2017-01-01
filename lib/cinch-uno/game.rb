@@ -49,7 +49,7 @@ module Uno
       raise PlayerDoesNotHaveThatCard if removed_card.nil?
 
       skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
-      reverse_play_order if card_played.type == :reverse && @players.count > 2
+      reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
 
       @discard_pile.push removed_card
 
