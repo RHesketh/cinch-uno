@@ -43,9 +43,7 @@ module Uno
       raise GameIsOver if @state == :game_over
       raise GameHasNotStarted unless @state == :waiting_for_player
       raise NotPlayersTurn unless current_player == player_name
-
-      top_card = discard_pile.last
-      raise InvalidMove if (card_played.type != top_card.type && card_played.color != top_card.color)
+      raise InvalidMove unless Rules.card_can_be_played?(card_played, discard_pile)
 
       removed_card = remove_card_from_hand(player_name, card_played)
       raise PlayerDoesNotHaveThatCard if removed_card.nil?
