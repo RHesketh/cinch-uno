@@ -4,7 +4,7 @@ module Uno
     attr_reader :discard_pile
     attr_reader :draw_pile
     attr_reader :play_order
-    attr_reader :players
+    attr_reader :players    # TODO: Refactor players out into a Players class with appropriate methods
 
     def current_player
       @play_order[@current_player]
@@ -48,7 +48,7 @@ module Uno
       removed_card = remove_card_from_hand(player_name, card_played)
       raise PlayerDoesNotHaveThatCard if removed_card.nil?
 
-      move_to_next_player if card_played.type == :skip || removed_card.type == :reverse && @players.count <= 2
+      skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       reverse_play_order if card_played.type == :reverse && @players.count > 2
 
       @discard_pile.push removed_card
@@ -78,6 +78,10 @@ module Uno
     class GameIsOver < StandardError; end 
 
     private
+
+    def skip_next_player
+      move_to_next_player
+    end
 
     def move_to_next_player
       @current_player = ((@current_player + 1) % @players.length)

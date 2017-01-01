@@ -9,6 +9,13 @@ module Uno
 
         return false
       end
+
+      def next_player_is_skipped?(card_played, player_count)
+        return true if card_played.type == :skip
+        return true if card_played.type == :reverse && player_count <= 2
+
+        return false
+      end
     end
   end
 end

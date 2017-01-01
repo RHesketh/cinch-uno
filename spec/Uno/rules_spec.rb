@@ -29,5 +29,27 @@ module Uno
         end
       end
     end
+
+    describe "next_player_is_skipped?(card, player_count)" do
+      it "Skip cards cause the next player to skip their turn" do
+        expect(Rules.next_player_is_skipped?(Card.new(:skip, :blue), 2)).to eq true
+      end
+
+      it "Normal cards don't cause the next player to skip their turn" do
+        expect(Rules.next_player_is_skipped?(Card.new(:two, :blue), 2)).to eq false
+      end
+
+      context "When two people are playing" do
+        it "Reverse cards cause the next player to skip their turn" do
+          expect(Rules.next_player_is_skipped?(Card.new(:reverse, :blue), 2)).to eq true
+        end
+      end
+
+      context "When more than two people are playing" do
+        it "Reverse cards don't cause the next player to skip their turn" do
+          expect(Rules.next_player_is_skipped?(Card.new(:reverse, :blue), 3)).to eq false
+        end
+      end
+    end
   end
 end
