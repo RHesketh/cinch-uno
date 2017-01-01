@@ -185,7 +185,7 @@ module Uno
       let(:fake_players) { { "Char" => {}, "angelphish" => {} } }
       let(:game){ Uno::Game.new(players: fake_players)}
 
-      before(:each) do 
+      before(:each) do
         game.start(static_play_order: true, shuffle_deck: false)
       end
 
@@ -198,7 +198,7 @@ module Uno
         expect(game.current_player).to eq game.players.keys[next_player]
       end
 
-      it "The skipping player picks up a card" do 
+      it "The skipping player picks up a card" do
         skipping_player = "Char"
         number_of_cards_beforehand = game.players[skipping_player][:cards].length
 
@@ -309,10 +309,10 @@ module Uno
       let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info, "trich" => fake_info} }
       let(:game){ Uno::Game.new(players: fake_players)}
 
-      describe "Reverse" do 
+      describe "Reverse" do
         let(:fake_hand) {[Uno::Card.new(:reverse, :red), Uno::Card.new(:one, :red)]}
 
-        before(:each) do 
+        before(:each) do
           game.start(static_play_order: true, shuffle_deck: false)
         end
 
@@ -354,6 +354,14 @@ module Uno
           game.play(going_player, fake_hand.first)
 
           expect(game.current_player).to eq "trich"
+        end
+      end
+
+      describe "Draw Two" do
+        let(:fake_hand) {[Uno::Card.new(:draw_two, :red), Uno::Card.new(:one, :red)]}
+
+        before(:each) do
+          game.start(static_play_order: true, shuffle_deck: false)
         end
       end
     end
