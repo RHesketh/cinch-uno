@@ -109,7 +109,7 @@ module Uno
         expect(fake_players.keys.include?(game.current_player)).to be true
       end
 
-      it "Begin in a :waiting_for_player state" do 
+      it "Begin in a :waiting_for_player state" do
         game.start
         expect(game.state).to be :waiting_for_player
       end
@@ -129,7 +129,7 @@ module Uno
       let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
       let(:game){ Uno::Game.new(players: fake_players)}
 
-      before(:each) do 
+      before(:each) do
         game.start(static_play_order: true, shuffle_deck: false)
       end
 
@@ -264,7 +264,7 @@ module Uno
         expect(game.current_player).to eq game.players.keys[next_player]
        end
 
-       it "The state is still :waiting_for_player" do 
+       it "The state is still :waiting_for_player" do
         expect(game.state).to be :waiting_for_player
        end
       end

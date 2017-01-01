@@ -74,8 +74,8 @@ module Uno
     class PlayerAlreadyInGame < StandardError; end
     class NotPlayersTurn < StandardError; end
     class InvalidMove < StandardError; end
-    class PlayerDoesNotHaveThatCard < StandardError; end 
-    class GameIsOver < StandardError; end 
+    class PlayerDoesNotHaveThatCard < StandardError; end
+    class GameIsOver < StandardError; end
 
     private
 
