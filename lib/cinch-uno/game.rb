@@ -10,7 +10,6 @@ module Uno
     end
 
     def next_player
-      next_player_index = (@current_player_index + 1) % players.count
       @players[next_player_index]
     end
 
@@ -84,7 +83,11 @@ module Uno
     end
 
     def move_to_next_player
-      @current_player_index = ((@current_player_index + 1) % @players.length)
+      @current_player_index = next_player_index
+    end
+
+    def next_player_index
+      (@current_player_index + 1) % players.count
     end
 
   end
