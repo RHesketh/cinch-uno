@@ -120,7 +120,7 @@ module Uno
       before(:each) do
         game.add_player(Player.new("Char"))
         game.add_player(Player.new("angelphish"))
-        game.start(static_play_order: true, shuffle_deck: false)
+        game.start
       end
 
       it "Moves are only accepted from players who are in the game" do
@@ -147,33 +147,37 @@ module Uno
       end
 
       it "Valid move: Playing a card matching the color of the card on top of the discard pile" do
-        expect(game.discard_pile.last.type).to eq :zero
-        expect(game.discard_pile.last.color).to eq :red
-
-        game.players[0].put_card_in_hand Uno::Card.new(:zero, :blue)
+        fake_card = spy("Card")
+        expect(fake_card).to receive(:type).and_return(:one)
+        expect(fake_card).to receive(:color).and_return(:red)
+        expect(game.discard_pile).to receive(:last).and_return(fake_card)
+        expect(game.current_player).to receive(:has_card?).at_least(:once).and_return(true)
 
         expect{
-          game.play(game.players[0], Uno::Card.new(:zero, :blue))
+          game.play(game.current_player, Uno::Card.new(:zero, :red))
         }.not_to raise_error
       end
 
       it "Valid move: Playing a card matching the number of the card on top of the discard pile" do
-        expect(game.discard_pile.last.type).to eq :zero
-        expect(game.discard_pile.last.color).to eq :red
+        fake_card = spy("Card")
+        expect(fake_card).to receive(:type).and_return(:one)
+        expect(game.discard_pile).to receive(:last).and_return(fake_card)
+        expect(game.current_player).to receive(:has_card?).at_least(:once).and_return(true)
 
         expect{
-          game.play(game.current_player, Uno::Card.new(:one, :red))
+          game.play(game.current_player, Uno::Card.new(:one, :blue))
         }.not_to raise_error
       end
 
       it "Invalid move: Playing a card that does not match the color or number of the card on top of the discard pile" do
-        expect(game.discard_pile.last.type).to eq :zero
-        expect(game.discard_pile.last.color).to eq :red
-
-        game.current_player.put_card_in_hand Card.new(:two, :yellow)
+        fake_card = spy("Card")
+        expect(fake_card).to receive(:color).and_return(:red)
+        expect(fake_card).to receive(:type).and_return(:one)
+        expect(game.discard_pile).to receive(:last).and_return(fake_card)
+        expect(game.current_player).to receive(:has_card?).at_least(:once).and_return(true)
 
         expect{
-          game.play(game.current_player, game.current_player.hand.last)
+          game.play(game.current_player, Uno::Card.new(:three, :yellow))
         }.to raise_error(InvalidMoveError)
       end
     end
@@ -184,7 +188,7 @@ module Uno
       before(:each) do
         game.add_player(Player.new("Char"))
         game.add_player(Player.new("angelphish"))
-        game.start(static_play_order: true, shuffle_deck: false)
+        game.start
       end
 
       it "Control goes to the next player" do
@@ -226,19 +230,19 @@ module Uno
         game.add_player Player.new("Char")
         game.add_player Player.new("angelphish")
 
-        game.start(static_play_order: true, shuffle_deck: false, deal_starting_hands: false)
+        game.start
       end
 
       context "If that was the player's last card" do
         before(:each) do
           expect(Rules).to receive(:card_can_be_played?).and_return(true)
+          expect(game.current_player).to receive(:hand).at_least(:once).and_return([spy("Card")])
 
-          game.current_player.put_card_in_hand Card.new(:two, :blue)
           game.play(game.current_player, game.current_player.hand.last)
         end
 
         it "The state is :game_over" do
-          expect(game.state).to be :game_over
+          expect(game.state).to eq :game_over
         end
 
         it "No further moves are accepted" do
@@ -292,7 +296,7 @@ module Uno
         game.add_player Player.new("Char")
         game.add_player Player.new("angelphish")
 
-        game.start(static_play_order: true, shuffle_deck: false, deal_starting_hands: false)
+        game.start
       end
 
       it "Does not remove the played card from the player's hand" do
@@ -330,7 +334,7 @@ module Uno
             game.add_player spy("Player", name: "angelphish")
             game.add_player spy("Player", name: "Wheeee")
 
-            game.start(static_play_order: true, deal_starting_hands: false)
+            game.start
           end
 
           it "Switches the direction of the play order when played" do
@@ -349,7 +353,7 @@ module Uno
             game.add_player spy("Player", name: "Char")
             game.add_player spy("Player", name: "angelphish")
 
-            game.start(static_play_order: true, deal_starting_hands: false)
+            game.start
           end
 
           it "Does not switch the direction of the play order when played" do
@@ -369,7 +373,7 @@ module Uno
           game.add_player spy("Player", name: "Char")
           game.add_player spy("Player", name: "angelphish")
 
-          game.start(static_play_order: true, deal_starting_hands: false)
+          game.start
         end
 
 
@@ -387,7 +391,7 @@ module Uno
         let(:fake_hand) {[Uno::Card.new(:draw_two, :red), Uno::Card.new(:one, :red)]}
 
         before(:each) do
-          game.start(static_play_order: true, shuffle_deck: false)
+          game.start
         end
       end
     end

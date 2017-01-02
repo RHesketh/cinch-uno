@@ -16,23 +16,21 @@ module Uno
       @players = []
     end
 
-    def start(options={})
+    def start
       raise NotEnoughPlayersError unless @players.count >= 2
 
-      @deck.shuffle! unless options[:shuffle_deck] == false
+      @deck.shuffle!
 
       @discard_pile = [@deck.pop]
       @draw_pile = @deck
-      @players.shuffle unless options[:static_play_order]
+      @players.shuffle
       @current_player_index = 0
 
-      unless options[:deal_starting_hands] == false
-        @players.each do |player|
-          player.empty_hand!
+      @players.each do |player|
+        player.empty_hand!
 
-          7.times do
-            player.put_card_in_hand @draw_pile.pop
-          end
+        7.times do
+          player.put_card_in_hand @draw_pile.pop
         end
       end
 
