@@ -369,6 +369,14 @@ module Uno
 
             expect(game.players).to eq original_play_order
           end
+
+          it "Skips the next player in the play order" do
+            original_player = game.current_player
+
+            game.play(game.current_player, Card.new(:reverse, :red))
+
+            expect(game.current_player).to eq original_player
+          end
         end
       end
 
