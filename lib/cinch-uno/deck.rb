@@ -4,19 +4,22 @@ module Uno
       deck = []
 
       Card.colors.each do |color|
-          deck << [Card.new(:zero, color),
-                   Card.new(:one, color),        Card.new(:one, color),
-                   Card.new(:two, color),        Card.new(:two, color),
-                   Card.new(:three, color),      Card.new(:three, color),
-                   Card.new(:four, color),       Card.new(:four, color),
-                   Card.new(:five, color),       Card.new(:five, color),
-                   Card.new(:six, color),        Card.new(:six, color),
-                   Card.new(:seven, color),      Card.new(:seven, color),
-                   Card.new(:eight, color),      Card.new(:eight, color),
-                   Card.new(:nine, color),       Card.new(:nine, color),
-                   Card.new(:draw_two, color),   Card.new(:draw_two, color),
-                   Card.new(:reverse, color),    Card.new(:reverse, color),
-                   Card.new(:skip, color),       Card.new(:skip, color)]
+        deck << [Card.new(:zero, color)]
+
+        2.times do
+          deck <<  [ Card.new(:one, color),
+                     Card.new(:two, color),
+                     Card.new(:three, color),
+                     Card.new(:four, color),
+                     Card.new(:five, color),
+                     Card.new(:six, color),
+                     Card.new(:seven, color),
+                     Card.new(:eight, color),
+                     Card.new(:nine, color),
+                     Card.new(:draw_two, color),
+                     Card.new(:reverse, color),
+                     Card.new(:skip, color)]
+        end
       end
 
       4.times do
