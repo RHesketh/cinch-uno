@@ -31,6 +31,10 @@ module Uno
     end
 
     describe "next_player_is_skipped?(card, player_count)" do
+      it "Draw two cards cause the next player to skip their turn" do
+        expect(Rules.next_player_is_skipped?(Card.new(:draw_two, :blue), 2)).to eq true
+      end
+
       it "Skip cards cause the next player to skip their turn" do
         expect(Rules.next_player_is_skipped?(Card.new(:skip, :blue), 2)).to eq true
       end
@@ -52,7 +56,7 @@ module Uno
       end
     end
 
-    describe "play_is_reversed?(card, player_count)" do
+    describe "#play_is_reversed?(card, player_count)" do
       it "Normal cards don't cause the play order to be reversed" do
         expect(Rules.play_is_reversed?(Card.new(:two, :blue), 2)).to eq false
       end
@@ -68,6 +72,16 @@ module Uno
           expect(Rules.play_is_reversed?(Card.new(:reverse, :blue), 3)).to eq true
         end
       end
+    end
+
+    describe "#next_player_must_draw_two?(card_played)" do
+        it "Draw two cards cause the player to pick up two" do
+          expect(Rules.next_player_must_draw_two?(Card.new(:draw_two, :blue))).to eq true
+        end
+
+        it "Any other cards don't cause the player to pick up two" do
+          expect(Rules.next_player_must_draw_two?(Card.new(:two, :blue))).to eq false
+        end
     end
   end
 end

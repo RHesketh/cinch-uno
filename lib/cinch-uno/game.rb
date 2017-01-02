@@ -9,6 +9,11 @@ module Uno
       @players[@current_player_index]
     end
 
+    def next_player
+      next_player_index = (@current_player_index + 1) % players.count
+      @players[next_player_index]
+    end
+
     def initialize
       @state = :waiting_to_start
 
@@ -18,7 +23,7 @@ module Uno
 
     def start
       raise GameHasStartedError unless @state == :waiting_to_start
-      raise NotEnoughPlayersError unless @players.count >= 2
+      raise NotEnoughPlayersError unless players.count >= 2
 
       @deck.shuffle!
       @discard_pile = [@deck.pop]
@@ -52,13 +57,15 @@ module Uno
       raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
-      skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
 
       @discard_pile.push current_player.take_card_from_hand(card_played)
 
       @state = :game_over if current_player.hand.size == 0
 
+      2.times {next_player.put_card_in_hand @draw_pile.pop} if Rules.next_player_must_draw_two?(card_played)
+
+      skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       move_to_next_player
     end
 

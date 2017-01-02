@@ -392,20 +392,36 @@ module Uno
 
 
         it "Skips the next player in the play order" do
-          current_player_index = game.players.find_index(game.current_player)
-          next_player_index = current_player_index + 1 % game.players.length-1
+          original_player = game.current_player
 
           game.play(game.current_player, Card.new(:skip, :red))
 
-          expect(game.current_player).to eq game.players[next_player_index]
+          expect(game.current_player).to eq original_player
         end
       end
 
       describe "Draw Two" do
-        let(:fake_hand) {[Uno::Card.new(:draw_two, :red), Uno::Card.new(:one, :red)]}
-
         before(:each) do
+          expect(Rules).to receive(:card_can_be_played?).and_return(true)
+
+          game.add_player spy("Player", name: "Char", hand: [])
+          game.add_player spy("Player", name: "angelphish", hand: [])
+
           game.start
+        end
+
+        it "Next player has to pick up two cards" do
+          expect(game.next_player).to receive(:put_card_in_hand).twice
+
+          game.play(game.current_player, Card.new(:draw_two, :red))
+        end
+
+        it "Skips the next player in the play order" do
+          original_player = game.current_player
+
+          game.play(game.current_player, Card.new(:draw_two, :red))
+
+          expect(game.current_player).to eq original_player
         end
       end
     end
