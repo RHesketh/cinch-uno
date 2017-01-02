@@ -17,12 +17,13 @@ module Uno
     end
 
     def start
+      raise GameHasStartedError unless @state == :waiting_to_start
       raise NotEnoughPlayersError unless @players.count >= 2
 
       @deck.shuffle!
-
       @discard_pile = [@deck.pop]
       @draw_pile = @deck
+
       @players.shuffle
       @current_player_index = 0
 

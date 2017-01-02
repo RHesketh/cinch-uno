@@ -112,6 +112,12 @@ module Uno
         expect{game.add_player(new_player)}.to raise_error(GameHasStartedError)
         expect(game.players.count).to eq player_count
       end
+
+      it "Can't restart the game once it's already started" do
+        game.start
+
+        expect{game.start}.to raise_error(GameHasStartedError)
+      end
     end
 
     context "Move validation" do
