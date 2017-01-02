@@ -12,5 +12,9 @@ module Uno
       return true if (self.color == b.color && self.type == b.type)
       return false
     end
+
+    def self.colors
+      [:red, :green, :blue, :yellow]
+    end
   end
 end

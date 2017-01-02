@@ -1,11 +1,9 @@
 module Uno
   class Deck
     def self.generate
-      colors = [:red, :green, :blue, :yellow]
-
       deck = []
 
-      colors.each do |color|
+      Card.colors.each do |color|
           deck << [Card.new(:zero, color),
                    Card.new(:one, color),        Card.new(:one, color),
                    Card.new(:two, color),        Card.new(:two, color),
