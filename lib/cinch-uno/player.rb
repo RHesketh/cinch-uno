@@ -8,13 +8,21 @@ module Uno
       @hand = []
     end
 
+    def empty_hand!
+      @hand = []
+    end
+
     def put_card_in_hand(card)
       @hand << card
     end
 
+    def take_card_from_hand(card)
+      raise PlayerDoesNotHaveThatCard unless has_card?(card)
+      hand.delete(card)
+    end
+
     def has_card?(card)
-      return true if @hand.any?{|card_in_hand| card_in_hand == card }
-      return false
+      hand.include? card
     end
   end
 end

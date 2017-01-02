@@ -28,10 +28,10 @@ module Uno
         game.add_player("Char")
         game.add_player("angelphish")
 
-        expect(game.players).to be_a Hash
+        expect(game.players).to be_an Array
 
-        expect(game.players.keys[0]).to eq "Char"
-        expect(game.players.keys[1]).to eq "angelphish"
+        expect(game.players[0]).to eq "Char"
+        expect(game.players[1]).to eq "angelphish"
 
         expect(game.players.length).to eq 2
       end
@@ -51,8 +51,8 @@ module Uno
     end
 
     context "When the game is started with at least two players..." do
-      let(:fake_players) { { "Char" => {}, "angelphish" => {} } }
-      let(:game){ Uno::Game.new(players: fake_players)}
+      let(:players) { [Player.new("Char"), Player.new("angelphish")] }
+      let(:game){ Uno::Game.new(players: players)}
 
       it "Generate a deck to play with" do
         expect(Uno::Deck).to receive(:generate).and_call_original
@@ -61,7 +61,7 @@ module Uno
       end
 
       it "Shuffle the deck" do
-        new_game = Uno::Game.new(deck: fake_deck, players: fake_players)
+        new_game = Uno::Game.new(deck: fake_deck, players: players)
 
         expect(fake_deck).to receive(:shuffle!)
 
@@ -71,14 +71,14 @@ module Uno
       it "Deals 7 cards to each player" do
         game.start
 
-        game.players.each do |player, info|
-          expect(info[:cards]).to be_an Array
-          expect(info[:cards].length).to eq 7
+        game.players.each do |player|
+          expect(player.hand).to be_an Array
+          expect(player.hand.size).to eq 7
         end
       end
 
       it "Place one card from the deck on the discard pile" do
-        new_game = Uno::Game.new(deck: fake_deck, players: fake_players)
+        new_game = Uno::Game.new(deck: fake_deck, players: players)
         new_game.start
 
         expect(new_game.discard_pile).to be_an Array
@@ -87,7 +87,7 @@ module Uno
       end
 
       it "Place the remaining cards from the deck into a draw pile" do
-        new_game = Uno::Game.new(deck: fake_deck, players: fake_players)
+        new_game = Uno::Game.new(deck: fake_deck, players: players)
         new_game.start
 
         expect(new_game.draw_pile).to be_an Array
@@ -98,58 +98,61 @@ module Uno
       it "Determine a play order" do
         game.start
 
-        expect(game.play_order).to be_an Array
-        expect(game.play_order.length).to eq 2
+        expect(game.players).to be_an Array
+        expect(game.players.count).to eq 2
       end
 
-      it "Expose the current player's name" do
+      it "Expose the current player" do
         game.start
 
-        expect(game.current_player).to be_a String
-        expect(fake_players.keys.include?(game.current_player)).to be true
+        expect(game.current_player).to be_a Player
+        expect(players.include?(game.current_player)).to be true
       end
 
-      it "Begin in a :waiting_for_player state" do
+      it "Begin in a :waiting_for_player_to_move state" do
         game.start
-        expect(game.state).to be :waiting_for_player
+        expect(game.state).to be :waiting_for_player_to_move
       end
 
       it "Can't add players once the game has started" do
         game.start
         player_count = game.players.count
 
-        expect{game.add_player("Gatecrasher")}.to raise_error(Game::GameHasStarted)
+        new_player = Player.new("Gatecrasher")
+        expect{game.add_player(new_player)}.to raise_error(Game::GameHasStarted)
         expect(game.players.count).to eq player_count
       end
     end
 
     context "Move validation" do
-      let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue), Uno::Card.new(:two, :yellow)]}
-      let(:fake_info) {{:cards => fake_hand}}
-      let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
-      let(:game){ Uno::Game.new(players: fake_players)}
+      let(:game){ Uno::Game.new}
 
       before(:each) do
+        game.add_player(Player.new("Char"))
+        game.add_player(Player.new("angelphish"))
         game.start(static_play_order: true, shuffle_deck: false)
       end
 
       it "Moves are only accepted from players who are in the game" do
+        gatecrasher = Player.new("foo12")
+
         expect{
-          game.play("foo12", Uno::Card.new)
+          game.play(gatecrasher, Uno::Card.new)
         }.to raise_error(Game::NotPlayersTurn)
       end
 
       it "A player cannot move unless it is their turn" do
-        expect(game.current_player).to eq "Char"
+        expect(game.current_player).to eq game.players[0]
+        queuejumper = game.players[1]
 
         expect{
-          game.play("angelphish", Uno::Card.new)
+          game.play(queuejumper, Uno::Card.new)
         }.to raise_error(Game::NotPlayersTurn)
       end
 
       it "A player cannot play a card that is not in their hand" do
         expect{
-          game.play("Char", Uno::Card.new(:zero, :yellow))
+          game.play(game.players[0], Uno::Card.new(:zero, :yellow))
         }.to raise_error(Game::PlayerDoesNotHaveThatCard)
       end
 
@@ -157,8 +160,10 @@ module Uno
         expect(game.discard_pile.last.type).to eq :zero
         expect(game.discard_pile.last.color).to eq :red
 
+        game.players[0].put_card_in_hand Uno::Card.new(:zero, :blue)
+
         expect{
-          game.play("Char", Uno::Card.new(:zero, :blue))
+          game.play(game.players[0], Uno::Card.new(:zero, :blue))
         }.not_to raise_error
       end
 
@@ -167,7 +172,7 @@ module Uno
         expect(game.discard_pile.last.color).to eq :red
 
         expect{
-          game.play("Char", Uno::Card.new(:one, :red))
+          game.play(game.current_player, Uno::Card.new(:one, :red))
         }.not_to raise_error
       end
 
@@ -175,185 +180,216 @@ module Uno
         expect(game.discard_pile.last.type).to eq :zero
         expect(game.discard_pile.last.color).to eq :red
 
+        game.current_player.put_card_in_hand Card.new(:two, :yellow)
+
         expect{
-          game.play("Char", Uno::Card.new(:two, :yellow))
+          game.play(game.current_player, game.current_player.hand.last)
         }.to raise_error(Game::InvalidMove)
       end
     end
 
     context "When a player skips instead of taking their turn" do
-      let(:fake_players) { { "Char" => {}, "angelphish" => {} } }
-      let(:game){ Uno::Game.new(players: fake_players)}
+      let(:game){ Uno::Game.new}
 
       before(:each) do
+        game.add_player(Player.new("Char"))
+        game.add_player(Player.new("angelphish"))
         game.start(static_play_order: true, shuffle_deck: false)
       end
 
       it "Control goes to the next player" do
-        current_player = game.play_order.find_index(game.current_player)
-        next_player = current_player + 1 % game.players.length
+        current_player_index = game.players.find_index(game.current_player)
+        next_player_index = current_player_index + 1 % game.players.count
 
-        game.skip("Char")
+        game.skip(game.current_player)
 
-        expect(game.current_player).to eq game.players.keys[next_player]
+        expect(game.current_player).to eq game.players[next_player_index]
       end
 
       it "The skipping player picks up a card" do
-        skipping_player = "Char"
-        number_of_cards_beforehand = game.players[skipping_player][:cards].length
+        skipping_player = game.current_player
+        number_of_cards_beforehand = skipping_player.hand.size
 
         game.skip(skipping_player)
 
-        expect(game.players[skipping_player][:cards].length).to be > number_of_cards_beforehand
+        expect(skipping_player.hand.size).to be > number_of_cards_beforehand
       end
 
       it "A player cannot skip if it is not their turn" do
-        expect(game.current_player).to eq "Char"
+        expect(game.current_player).to eq game.players[0]
 
-        expect{game.skip("angelphish")}.to raise_error(Game::NotPlayersTurn)
+        expect{game.skip(game.players[1])}.to raise_error(Game::NotPlayersTurn)
       end
 
       it "A player cannot skip if they are not playing" do
-        expect(game.current_player).to eq "Char"
+        gatecrasher = Player.new("foo12")
+        expect(game.players.include? gatecrasher).to eq false
 
-        expect{game.skip("foo12")}.to raise_error(Game::NotPlayersTurn)
+        expect{game.skip(gatecrasher)}.to raise_error(Game::NotPlayersTurn)
       end
     end
 
     context "When a valid move is made..." do
-      let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
-      let(:fake_info) {{:cards => fake_hand}}
-      let(:going_player) { "Char"}
-      let(:played_card) {fake_hand.first}
-      let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
-      let(:game){ Uno::Game.new(players: fake_players)}
+      let(:game){ Uno::Game.new}
 
       before(:each) do
-        game.start(static_play_order: true, shuffle_deck: false)
-        game.play(going_player, played_card)
+        game.add_player Player.new("Char")
+        game.add_player Player.new("angelphish")
+
+        game.start(static_play_order: true, shuffle_deck: false, deal_starting_hands: false)
       end
 
       context "If that was the player's last card" do
-        let(:fake_hand) {[Uno::Card.new(:one, :red)]}
+        before(:each) do
+          expect(Rules).to receive(:card_can_be_played?).and_return(true)
+
+          game.current_player.put_card_in_hand Card.new(:two, :blue)
+          game.play(game.current_player, game.current_player.hand.last)
+        end
 
         it "The state is :game_over" do
           expect(game.state).to be :game_over
         end
 
         it "No further moves are accepted" do
-        expect{
-          game.play("Char", Uno::Card.new(:two, :yellow))
-        }.to raise_error(Game::GameIsOver)
+          expect{
+            game.play(game.current_player, spy("Card"))
+          }.to raise_error(Game::GameIsOver)
         end
       end
 
       context "If the player still has cards in their hand" do
+        before(:each) do
+          expect(Rules).to receive(:card_can_be_played?).and_return(true)
+
+          game.current_player.put_card_in_hand Card.new(:two, :blue)
+          game.current_player.put_card_in_hand Card.new(:red, :one)
+
+          @played_card = game.current_player.hand.last
+          @going_player = game.current_player
+
+          game.play(game.current_player, @played_card)
+        end
+
         it "The card that was just played is now on top of the discard pile" do
-          expect(game.discard_pile.last.color).to eq :red
-          expect(game.discard_pile.last.type).to  eq :one
+          expect(game.discard_pile.last).to eq @played_card
         end
 
         it "The card that was just played is no longer in the player's hand" do
-          game.players[game.current_player][:cards].any?{|c| c == played_card}
+          expect(game.current_player.hand).not_to include @played_card
         end
 
-       it "Gameplay moves to the next player in the list" do
-        current_player = game.play_order.find_index(going_player)
-        next_player = current_player + 1 % game.players.length
+        it "Gameplay moves to the next player in the list" do
+          previous_player_index = game.players.find_index(@going_player)
+          expected_player_index = previous_player_index + 1 % game.players.length
 
-        expect(game.current_player).to eq game.players.keys[next_player]
-       end
+          expect(game.current_player).to eq game.players[expected_player_index]
+        end
 
-       it "The state is still :waiting_for_player" do
-        expect(game.state).to be :waiting_for_player
-       end
+        it "The state is still :waiting_for_player_to_move" do
+          expect(game.state).to be :waiting_for_player_to_move
+        end
       end
     end
 
     context "When an invalid move is made..." do
-      let(:fake_hand) {[Uno::Card.new(:five, :green), Uno::Card.new(:six, :yellow)]}
-      let(:fake_info) {{:cards => fake_hand}}
-      let(:going_player) { "Char"}
-      let(:played_card) {fake_hand.last}
-      let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info } }
-      let(:game){ Uno::Game.new(players: fake_players)}
+      let(:game){ Uno::Game.new}
 
       before(:each) do
-        @starting_hand = fake_hand.dup
+        expect(Rules).to receive(:card_can_be_played?).and_return(false)
+        expect_any_instance_of(Player).to receive(:has_card?).and_return(true)
 
-        game.start(static_play_order: true, shuffle_deck: false)
+        game.add_player Player.new("Char")
+        game.add_player Player.new("angelphish")
 
-        expect(game.discard_pile.last.type).to eq :zero
-        expect(game.discard_pile.last.color).to eq :red
-        begin
-          game.play(going_player, played_card)
-        rescue
-          # Throws an exception but we don't care for this test
-        end
+        game.start(static_play_order: true, shuffle_deck: false, deal_starting_hands: false)
       end
 
       it "Does not remove the played card from the player's hand" do
-        expect(game.players[going_player][:cards]).to eq @starting_hand
+        playing_player = game.current_player
+        starting_hand = playing_player.hand.clone
+        begin
+          game.play(game.current_player, spy("Card"))
+        rescue
+        end
+
+        expect(playing_player.hand).to eq starting_hand
       end
 
       it "Does not move to the next player" do
-        expect(game.current_player).to eq going_player
+        playing_player = game.current_player
+        begin
+          game.play(game.current_player, spy("Card"))
+        rescue
+        end
+
+        expect(game.current_player).to eq playing_player
       end
 
     end
 
     context "Action cards" do
-      let(:fake_hand) {[Uno::Card.new(:one, :red), Uno::Card.new(:zero, :blue)]}
-      let(:fake_info) {{:cards => fake_hand}}
-      let(:going_player) { "Char"}
-      let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info, "trich" => fake_info} }
-      let(:game){ Uno::Game.new(players: fake_players)}
+      let(:game){ Uno::Game.new }
 
       describe "Reverse" do
-        let(:fake_hand) {[Uno::Card.new(:reverse, :red), Uno::Card.new(:one, :red)]}
+        context "When there are 3 or more players" do
+          before(:each) do
+            expect(Rules).to receive(:card_can_be_played?).and_return(true)
 
-        before(:each) do
-          game.start(static_play_order: true, shuffle_deck: false)
-        end
+            game.add_player spy("Player", name: "Char")
+            game.add_player spy("Player", name: "angelphish")
+            game.add_player spy("Player", name: "Wheeee")
 
-        it "Switches the direction of the play order when played" do
-          original_play_order = game.play_order
-          game.play(going_player, fake_hand.first)
-          expect(game.play_order).to eq original_play_order.reverse
+            game.start(static_play_order: true, deal_starting_hands: false)
+          end
+
+          it "Switches the direction of the play order when played" do
+            original_play_order = game.players.clone
+
+            game.play(game.current_player, Card.new(:reverse, :red))
+
+            expect(game.players).to eq original_play_order.reverse
+          end
         end
 
         context "When there are only two players" do
-          let(:fake_players) { { "Char" => fake_info, "angelphish" => fake_info} }
-          it "Acts like a Skip card" do
-            expect(game.current_player).to eq "Char"
+          before(:each) do
+            expect(Rules).to receive(:card_can_be_played?).and_return(true)
 
-            game.play(going_player, fake_hand.first)
+            game.add_player spy("Player", name: "Char")
+            game.add_player spy("Player", name: "angelphish")
 
-            expect(game.current_player).to eq "Char"
+            game.start(static_play_order: true, deal_starting_hands: false)
           end
 
-          it "Does not reverse the order" do
-            original_play_order = game.play_order
-            game.play(going_player, fake_hand.first)
-            expect(game.play_order).to eq original_play_order
+          it "Does not switch the direction of the play order when played" do
+            original_play_order = game.players.clone
+
+            game.play(game.current_player, Card.new(:reverse, :red))
+
+            expect(game.players).to eq original_play_order
           end
         end
       end
 
       describe "Skip" do
-        let(:fake_hand) {[Uno::Card.new(:skip, :red), Uno::Card.new(:one, :red)]}
-
         before(:each) do
-          game.start(static_play_order: true, shuffle_deck: false)
+          expect(Rules).to receive(:card_can_be_played?).and_return(true)
+
+          game.add_player spy("Player", name: "Char")
+          game.add_player spy("Player", name: "angelphish")
+
+          game.start(static_play_order: true, deal_starting_hands: false)
         end
 
 
         it "Skips the next player in the play order" do
-          expect(game.current_player).to eq "Char"
+          current_player_index = game.players.find_index(game.current_player)
+          next_player_index = current_player_index + 1 % game.players.length-1
 
-          game.play(going_player, fake_hand.first)
+          game.play(game.current_player, Card.new(:skip, :red))
 
-          expect(game.current_player).to eq "trich"
+          expect(game.current_player).to eq game.players[next_player_index]
         end
       end
 

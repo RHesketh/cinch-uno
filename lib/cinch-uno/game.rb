@@ -3,19 +3,18 @@ module Uno
     attr_reader :state
     attr_reader :discard_pile
     attr_reader :draw_pile
-    attr_reader :play_order
-    attr_reader :players    # TODO: Refactor players out into a Players class with appropriate methods
+    attr_reader :players
 
     def current_player
-      @play_order[@current_player]
+      @players[@current_player_index]
     end
 
     def initialize(options={})
-      @state =          :waiting_to_start
+      @state = :waiting_to_start
 
 
-      @deck =               options[:deck]      || Uno::Deck.generate
-      @players =            options[:players]   || {}
+      @deck = options[:deck]          || Uno::Deck.generate
+      @players = options[:players]    || []
     end
 
     def start(options={})
@@ -25,45 +24,52 @@ module Uno
 
       @discard_pile = [@deck.pop]
       @draw_pile = @deck
-      @play_order = options[:static_play_order] != false ? @players.keys : @players.keys.shuffle
-      @current_player = 0
+      @players.shuffle unless options[:static_play_order]
+      @current_player_index = 0
 
-      deal_starting_cards_to_all_players if @players[current_player][:cards].nil?
+      unless options[:deal_starting_hands] == false
+        @players.each do |player|
+          player.empty_hand!
 
-      @state = :waiting_for_player
+          7.times do
+            player.put_card_in_hand @draw_pile.pop
+          end
+        end
+      end
+
+      @state = :waiting_for_player_to_move
     end
 
-    def add_player(nickname)
+    def add_player(player)
       raise GameIsOver if @state == :game_over
       raise GameHasStarted unless @state == :waiting_to_start
-      @players[nickname] = {}
+
+      @players << player unless players.include?(player)
     end
 
-    def play(player_name, card_played)
+    def play(player, card_played)
       raise GameIsOver if @state == :game_over
-      raise GameHasNotStarted unless @state == :waiting_for_player
-      raise NotPlayersTurn unless current_player == player_name
+      raise GameHasNotStarted unless @state == :waiting_for_player_to_move
+      raise NotPlayersTurn unless player == current_player
+      raise PlayerDoesNotHaveThatCard unless player.has_card?(card_played)
       raise InvalidMove unless Rules.card_can_be_played?(card_played, discard_pile)
-
-      removed_card = remove_card_from_hand(player_name, card_played)
-      raise PlayerDoesNotHaveThatCard if removed_card.nil?
 
       skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
 
-      @discard_pile.push removed_card
+      @discard_pile.push current_player.take_card_from_hand(card_played)
 
-      @state = :game_over if player_has_no_cards_left(current_player)
+      @state = :game_over if current_player.hand.size == 0
 
       move_to_next_player
     end
 
-    def skip(player_name)
-      raise NotPlayersTurn if player_name != current_player
+    def skip(player)
+      raise NotPlayersTurn if player != current_player
 
-      @players[current_player][:cards] << @draw_pile.pop
+      current_player.put_card_in_hand @draw_pile.pop
 
-      @current_player = ((@current_player + 1) % @players.length)
+      move_to_next_player
     end
 
     # Errors
@@ -84,32 +90,11 @@ module Uno
     end
 
     def move_to_next_player
-      @current_player = ((@current_player + 1) % @players.length)
+      @current_player_index = ((@current_player_index + 1) % @players.length)
     end
 
     def reverse_play_order
-      @play_order = @play_order.reverse
-    end
-
-    def player_has_no_cards_left(player_name)
-      return true if players[player_name][:cards].count == 0
-      return false
-    end
-
-    def remove_card_from_hand(player_name, card_played)
-      index = players[player_name][:cards].find_index{|c| c == card_played}
-      return nil if index.nil?
-      players[player_name][:cards].delete_at(index)
-    end
-
-    def deal_starting_cards_to_all_players
-      @players.keys.each do |player|
-        @players[player][:cards] = []
-
-        7.times do
-          @players[player][:cards] << @draw_pile.pop
-        end
-      end
+      @players = @players.reverse
     end
   end
 end
