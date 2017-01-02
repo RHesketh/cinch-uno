@@ -18,7 +18,7 @@ module Uno
     end
 
     def start(options={})
-      raise NotEnoughPlayers unless @players.count >= 2
+      raise NotEnoughPlayersError unless @players.count >= 2
 
       @deck.shuffle! unless options[:shuffle_deck] == false
 
@@ -41,18 +41,18 @@ module Uno
     end
 
     def add_player(player)
-      raise GameIsOver if @state == :game_over
-      raise GameHasStarted unless @state == :waiting_to_start
+      raise GameIsOverError if @state == :game_over
+      raise GameHasStartedError unless @state == :waiting_to_start
 
       @players << player unless players.include?(player)
     end
 
     def play(player, card_played)
-      raise GameIsOver if @state == :game_over
-      raise GameHasNotStarted unless @state == :waiting_for_player_to_move
-      raise NotPlayersTurn unless player == current_player
-      raise PlayerDoesNotHaveThatCard unless player.has_card?(card_played)
-      raise InvalidMove unless Rules.card_can_be_played?(card_played, discard_pile)
+      raise GameIsOverError if @state == :game_over
+      raise GameHasNotStartedError unless @state == :waiting_for_player_to_move
+      raise NotPlayersTurnError unless player == current_player
+      raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
+      raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
       skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
@@ -65,23 +65,12 @@ module Uno
     end
 
     def skip(player)
-      raise NotPlayersTurn if player != current_player
+      raise NotPlayersTurnError if player != current_player
 
       current_player.put_card_in_hand @draw_pile.pop
 
       move_to_next_player
     end
-
-    # Errors
-    # Todo: Add "Error" onto all their names
-    class GameHasNotStarted < StandardError; end
-    class GameHasStarted < StandardError; end
-    class NotEnoughPlayers < StandardError; end
-    class PlayerAlreadyInGame < StandardError; end
-    class NotPlayersTurn < StandardError; end
-    class InvalidMove < StandardError; end
-    class PlayerDoesNotHaveThatCard < StandardError; end
-    class GameIsOver < StandardError; end
 
     private
 

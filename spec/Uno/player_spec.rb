@@ -55,7 +55,7 @@ module Uno
         subject.put_card_in_hand(card)
         expect {
           subject.take_card_from_hand(other_card)
-          }.to raise_error(PlayerDoesNotHaveThatCard)
+          }.to raise_error(PlayerDoesNotHaveThatCardError)
       end
     end
 

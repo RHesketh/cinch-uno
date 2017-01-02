@@ -21,7 +21,7 @@ module Uno
       it "Don't start the game unless there are at least 2 players" do
         expect{
           game.start
-        }.to raise_error(Game::NotEnoughPlayers)
+        }.to raise_error(NotEnoughPlayersError)
       end
 
       it "Allow multiple players to join the game" do
@@ -46,7 +46,7 @@ module Uno
       it "Moves are not accepted" do
         expect{
           game.play("foo12", Uno::Card.new)
-        }.to raise_error(Game::GameHasNotStarted)
+        }.to raise_error(GameHasNotStartedError)
       end
     end
 
@@ -119,7 +119,7 @@ module Uno
         player_count = game.players.count
 
         new_player = Player.new("Gatecrasher")
-        expect{game.add_player(new_player)}.to raise_error(Game::GameHasStarted)
+        expect{game.add_player(new_player)}.to raise_error(GameHasStartedError)
         expect(game.players.count).to eq player_count
       end
     end
@@ -138,7 +138,7 @@ module Uno
 
         expect{
           game.play(gatecrasher, Uno::Card.new)
-        }.to raise_error(Game::NotPlayersTurn)
+        }.to raise_error(NotPlayersTurnError)
       end
 
       it "A player cannot move unless it is their turn" do
@@ -147,13 +147,13 @@ module Uno
 
         expect{
           game.play(queuejumper, Uno::Card.new)
-        }.to raise_error(Game::NotPlayersTurn)
+        }.to raise_error(NotPlayersTurnError)
       end
 
       it "A player cannot play a card that is not in their hand" do
         expect{
           game.play(game.players[0], Uno::Card.new(:zero, :yellow))
-        }.to raise_error(Game::PlayerDoesNotHaveThatCard)
+        }.to raise_error(PlayerDoesNotHaveThatCardError)
       end
 
       it "Valid move: Playing a card matching the color of the card on top of the discard pile" do
@@ -184,7 +184,7 @@ module Uno
 
         expect{
           game.play(game.current_player, game.current_player.hand.last)
-        }.to raise_error(Game::InvalidMove)
+        }.to raise_error(InvalidMoveError)
       end
     end
 
@@ -218,14 +218,14 @@ module Uno
       it "A player cannot skip if it is not their turn" do
         expect(game.current_player).to eq game.players[0]
 
-        expect{game.skip(game.players[1])}.to raise_error(Game::NotPlayersTurn)
+        expect{game.skip(game.players[1])}.to raise_error(NotPlayersTurnError)
       end
 
       it "A player cannot skip if they are not playing" do
         gatecrasher = Player.new("foo12")
         expect(game.players.include? gatecrasher).to eq false
 
-        expect{game.skip(gatecrasher)}.to raise_error(Game::NotPlayersTurn)
+        expect{game.skip(gatecrasher)}.to raise_error(NotPlayersTurnError)
       end
     end
 
@@ -254,7 +254,7 @@ module Uno
         it "No further moves are accepted" do
           expect{
             game.play(game.current_player, spy("Card"))
-          }.to raise_error(Game::GameIsOver)
+          }.to raise_error(GameIsOverError)
         end
       end
 

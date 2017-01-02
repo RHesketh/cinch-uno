@@ -1,3 +1,13 @@
 module Uno
-  class PlayerDoesNotHaveThatCard < StandardError; end
+  # Player
+  class PlayerDoesNotHaveThatCardError < StandardError; end
+
+  # Game
+  class GameHasNotStartedError < StandardError; end
+  class GameHasStartedError < StandardError; end
+  class NotEnoughPlayersError < StandardError; end
+  class PlayerAlreadyInGameError < StandardError; end
+  class NotPlayersTurnError < StandardError; end
+  class InvalidMoveError < StandardError; end
+  class GameIsOverError < StandardError; end
 end

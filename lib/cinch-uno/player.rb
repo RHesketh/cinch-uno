@@ -17,7 +17,7 @@ module Uno
     end
 
     def take_card_from_hand(card)
-      raise PlayerDoesNotHaveThatCard unless has_card?(card)
+      raise PlayerDoesNotHaveThatCardError unless has_card?(card)
       hand.delete(card)
     end
 
