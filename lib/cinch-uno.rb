@@ -1,4 +1,4 @@
-require 'cinch-uno/game_irc_bridge.rb'
+require 'cinch-uno/message_handler.rb'
 
 require 'cinch-uno/rules.rb'
 require 'cinch-uno/game.rb'
