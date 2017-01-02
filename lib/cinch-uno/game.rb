@@ -65,7 +65,6 @@ module Uno
       reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
       2.times {next_player.put_card_in_hand @draw_pile.pop} if Rules.next_player_must_draw_two?(card_played)
 
-
       skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       move_to_next_player
     end
