@@ -62,7 +62,7 @@ module Uno
       @state = :game_over if current_player.hand.size == 0
 
       # Apply any special actions the card demands
-      reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
+      @players = @players.reverse if Rules.play_is_reversed?(card_played, @players.count)
       2.times {next_player.put_card_in_hand @draw_pile.pop} if Rules.next_player_must_draw_two?(card_played)
 
       skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
@@ -87,8 +87,5 @@ module Uno
       @current_player_index = ((@current_player_index + 1) % @players.length)
     end
 
-    def reverse_play_order
-      @players = @players.reverse
-    end
   end
 end
