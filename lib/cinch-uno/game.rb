@@ -9,12 +9,11 @@ module Uno
       @players[@current_player_index]
     end
 
-    def initialize(options={})
+    def initialize
       @state = :waiting_to_start
 
-
-      @deck = options[:deck]          || Uno::Deck.generate
-      @players = options[:players]    || []
+      @deck = Deck.generate
+      @players = []
     end
 
     def start(options={})

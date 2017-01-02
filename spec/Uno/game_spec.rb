@@ -2,16 +2,7 @@ require 'spec_helper'
 
 module Uno
   describe Game do
-    let(:fake_deck) {
-      array = []
-      20.times do
-        array << Uno::Card.new
-      end
-
-      array
-    }
-
-    let(:game) { Uno::Game.new(deck: fake_deck) }
+    let(:game) { Uno::Game.new }
 
     it 'Starts in a :waiting_to_start state' do
       expect(game.state).to be :waiting_to_start
@@ -51,21 +42,22 @@ module Uno
     end
 
     context "When the game is started with at least two players..." do
-      let(:players) { [Player.new("Char"), Player.new("angelphish")] }
-      let(:game){ Uno::Game.new(players: players)}
+      let(:game){ Uno::Game.new }
+
+      before(:each) do
+        game.add_player Player.new("Char")
+        game.add_player Player.new("angelphish")
+      end
 
       it "Generate a deck to play with" do
-        expect(Uno::Deck).to receive(:generate).and_call_original
-
-        game.start
+        expect(Deck).to receive(:generate).and_call_original
+        Uno::Game.new
       end
 
       it "Shuffle the deck" do
-        new_game = Uno::Game.new(deck: fake_deck, players: players)
+        expect_any_instance_of(Array).to receive(:shuffle!).and_call_original
 
-        expect(fake_deck).to receive(:shuffle!)
-
-        new_game.start
+        game.start
       end
 
       it "Deals 7 cards to each player" do
@@ -78,21 +70,19 @@ module Uno
       end
 
       it "Place one card from the deck on the discard pile" do
-        new_game = Uno::Game.new(deck: fake_deck, players: players)
-        new_game.start
+        game.start
 
-        expect(new_game.discard_pile).to be_an Array
-        expect(new_game.discard_pile.length).to eq 1
-        expect(new_game.discard_pile.last).to be_a Uno::Card
+        expect(game.discard_pile).to be_an Array
+        expect(game.discard_pile.length).to eq 1
+        expect(game.discard_pile.last).to be_a Card
       end
 
       it "Place the remaining cards from the deck into a draw pile" do
-        new_game = Uno::Game.new(deck: fake_deck, players: players)
-        new_game.start
+        game.start
 
-        expect(new_game.draw_pile).to be_an Array
-        expect(new_game.draw_pile.length).to eq 5
-        expect(new_game.draw_pile.last).to be_a Uno::Card
+        expect(game.draw_pile).to be_an Array
+        expect(game.draw_pile.length).to eq 93
+        expect(game.draw_pile.last).to be_a Uno::Card
       end
 
       it "Determine a play order" do
@@ -106,7 +96,7 @@ module Uno
         game.start
 
         expect(game.current_player).to be_a Player
-        expect(players.include?(game.current_player)).to be true
+        expect(game.players.include?(game.current_player)).to be true
       end
 
       it "Begin in a :waiting_for_player_to_move state" do
