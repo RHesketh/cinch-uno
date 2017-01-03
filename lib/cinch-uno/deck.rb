@@ -4,7 +4,7 @@ module Uno
       deck = []
 
       Card.colors.each do |color|
-        deck << [Card.new(:zero, color)]
+        deck << Card.new(:zero, color)
 
         2.times do
           deck <<  [ Card.new(:one, color),
@@ -18,7 +18,7 @@ module Uno
                      Card.new(:nine, color),
                      Card.new(:draw_two, color),
                      Card.new(:reverse, color),
-                     Card.new(:skip, color)]
+                     Card.new(:skip, color) ]
         end
       end
 

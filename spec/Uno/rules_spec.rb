@@ -28,6 +28,18 @@ module Uno
           expect(Rules.card_can_be_played?(card, discard_pile)).to eq false
         end
       end
+
+      describe "Special cards" do
+        describe "Wild" do
+          it "Can be played on top of any card" do
+            card = Card.new(:wild)
+            discarded_card = Card.new(:two, :red)
+            discard_pile = [discarded_card]
+
+            expect(Rules.card_can_be_played?(card, discard_pile)).to eq true
+          end
+        end
+      end
     end
 
     describe "next_player_is_skipped?(card, player_count)" do
