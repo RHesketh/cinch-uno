@@ -10,4 +10,5 @@ module Uno
   class NotPlayersTurnError < StandardError; end
   class InvalidMoveError < StandardError; end
   class GameIsOverError < StandardError; end
+  class NoColorChosenError < StandardError; end
 end

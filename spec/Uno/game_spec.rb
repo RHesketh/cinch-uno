@@ -424,6 +424,20 @@ module Uno
           expect(game.current_player).to eq original_player
         end
       end
+
+      describe "Wild" do
+        context "When provided without a color choice" do
+          xit "Throws an error"
+        end
+
+        context "When provided with a color choice that is not an uno card color" do
+          xit "Throws an error"
+        end
+
+        context "When provided with a valid color choice" do
+          xit "the next card on the discard pile has the color chosen"
+        end
+      end
     end
   end
 end

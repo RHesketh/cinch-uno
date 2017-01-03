@@ -49,7 +49,9 @@ module Uno
       @players << player unless players.include?(player)
     end
 
-    def play(player, card_played)
+    def play(player, card_played, color_choice = nil)
+      #raise NoColorChosenError if card_played.type == :wild && color_choice.nil?
+      #raise InvalidColorChoice if color_choice && !Card.colors.include?(color_choice)
       raise GameIsOverError if @state == :game_over
       raise GameHasNotStartedError unless @state == :waiting_for_player_to_move
       raise NotPlayersTurnError unless player == current_player
