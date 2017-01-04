@@ -1,6 +1,6 @@
 module Uno
   class Card
-    attr_reader :color
+    attr_accessor :color
     attr_reader :type
 
     def initialize(type=nil, color = nil)

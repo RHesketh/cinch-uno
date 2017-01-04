@@ -50,8 +50,8 @@ module Uno
     end
 
     def play(player, card_played, color_choice = nil)
-      #raise NoColorChosenError if card_played.type == :wild && color_choice.nil?
-      #raise InvalidColorChoice if color_choice && !Card.colors.include?(color_choice)
+      raise NoColorChosenError if card_played.type == :wild && color_choice.nil?
+      raise InvalidColorChoice if color_choice && !Card.colors.include?(color_choice)
       raise GameIsOverError if @state == :game_over
       raise GameHasNotStartedError unless @state == :waiting_for_player_to_move
       raise NotPlayersTurnError unless player == current_player
@@ -65,6 +65,7 @@ module Uno
       # Apply any special actions the card demands
       @players = @players.reverse if Rules.play_is_reversed?(card_played, @players.count)
       2.times {next_player.put_card_in_hand @draw_pile.pop} if Rules.next_player_must_draw_two?(card_played)
+      card_played.color = color_choice if Rules.card_played_changes_color?(card_played)
 
       skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       move_to_next_player

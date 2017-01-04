@@ -426,16 +426,35 @@ module Uno
       end
 
       describe "Wild" do
+        before(:each) do
+          allow(Rules).to receive(:card_can_be_played?).and_return(true)
+
+          game.add_player spy("Player", name: "Char", hand: [])
+          game.add_player spy("Player", name: "angelphish", hand: [])
+
+          game.start
+        end
+
         context "When provided without a color choice" do
-          xit "Throws an error"
+          it "Throws an error" do
+            expect{game.play(game.current_player, Card.new(:wild))}.to raise_error(NoColorChosenError)
+          end
         end
 
         context "When provided with a color choice that is not an uno card color" do
-          xit "Throws an error"
+          it "Throws an error" do
+            expect{game.play(game.current_player, Card.new(:wild), :butt)}.to raise_error(InvalidColorChoice)
+          end
         end
 
         context "When provided with a valid color choice" do
-          xit "the next card on the discard pile has the color chosen"
+          it "the next card on the discard pile has the color chosen" do
+            played_card = Card.new(:wild)
+            expect(game.current_player).to receive(:take_card_from_hand).and_return(played_card)
+            game.play(game.current_player, played_card, :yellow)
+
+            expect(game.discard_pile.last.color).to eq :yellow
+          end
         end
       end
     end

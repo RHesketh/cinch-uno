@@ -95,5 +95,15 @@ module Uno
           expect(Rules.next_player_must_draw_two?(Card.new(:two, :blue))).to eq false
         end
     end
+
+    describe "#card_played_changes_color?" do
+      it "Wild cards change to the specified color" do
+        expect(Rules.card_played_changes_color?(Card.new(:wild))).to eq true
+      end
+
+      it "Normal cards don't change to the specified color" do
+        expect(Rules.card_played_changes_color?(Card.new(:four, :green))).to eq false
+      end
+    end
   end
 end

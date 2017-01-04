@@ -30,6 +30,11 @@ module Uno
         return true if card_played.type == :draw_two
         return false
       end
+
+      def card_played_changes_color?(card_played)
+        return true if card_played.type == :wild
+        return false
+      end
     end
   end
 end
