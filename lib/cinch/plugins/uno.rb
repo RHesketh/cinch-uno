@@ -1,5 +1,3 @@
-require_relative 'uno/message_handler'
-
 module Cinch
   module Plugins
     # Interfaces with Cinch and IRC chatters
