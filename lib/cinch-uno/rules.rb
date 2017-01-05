@@ -3,6 +3,7 @@ module Uno
     class << self
       def card_can_be_played?(card_played, discard_pile)
         return true if card_played.type == :wild
+        return true if card_played.type == :wild_draw_four
         top_card = discard_pile.last
 
         return true if card_played.type == top_card.type

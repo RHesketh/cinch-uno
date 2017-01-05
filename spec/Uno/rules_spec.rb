@@ -39,6 +39,16 @@ module Uno
             expect(Rules.card_can_be_played?(card, discard_pile)).to eq true
           end
         end
+
+        describe "Wild Draw Four" do
+          it "Can be played on top of any card" do
+            card = Card.new(:wild_draw_four)
+            discarded_card = Card.new(:two, :red)
+            discard_pile = [discarded_card]
+
+            expect(Rules.card_can_be_played?(card, discard_pile)).to eq true
+          end
+        end
       end
     end
 

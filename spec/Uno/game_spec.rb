@@ -242,7 +242,7 @@ module Uno
       context "If that was the player's last card" do
         before(:each) do
           expect(Rules).to receive(:card_can_be_played?).and_return(true)
-          expect(game.current_player).to receive(:hand).at_least(:once).and_return([spy("Card")])
+          expect(game.current_player).to receive(:hand).at_least(:once).and_return([spy("Card", :wild? => false)])
 
           game.play(game.current_player, game.current_player.hand.last)
         end
@@ -253,7 +253,7 @@ module Uno
 
         it "No further moves are accepted" do
           expect{
-            game.play(game.current_player, spy("Card"))
+            game.play(game.current_player, spy("Card", :wild? => false))
           }.to raise_error(GameIsOverError)
         end
       end
@@ -309,7 +309,7 @@ module Uno
         playing_player = game.current_player
         starting_hand = playing_player.hand.clone
         begin
-          game.play(game.current_player, spy("Card"))
+          game.play(game.current_player, spy("Card", :wild? => false))
         rescue
         end
 
@@ -319,7 +319,7 @@ module Uno
       it "Does not move to the next player" do
         playing_player = game.current_player
         begin
-          game.play(game.current_player, spy("Card"))
+          game.play(game.current_player, spy("Card", :wild? => false))
         rescue
         end
 
@@ -456,6 +456,36 @@ module Uno
             expect(game.discard_pile.last.color).to eq :yellow
           end
         end
+      end
+
+      describe "Wild Draw Four" do
+        before(:each) do
+          allow(Rules).to receive(:card_can_be_played?).and_return(true)
+
+          game.add_player spy("Player", name: "Char", hand: [])
+          game.add_player spy("Player", name: "angelphish", hand: [])
+
+          game.start
+        end
+
+        context "When provided without a color choice" do
+          it "Throws an error" do
+            expect{game.play(game.current_player, Card.new(:wild_draw_four))}.to raise_error(NoColorChosenError)
+          end
+        end
+
+        context "When provided with a color choice that is not an uno card color" do
+          it "Throws an error" do
+            expect{game.play(game.current_player, Card.new(:wild_draw_four), :butt)}.to raise_error(InvalidColorChoice)
+          end
+        end
+
+        context "When provided with a valid color choice" do
+          it "Forces the next player to pick up 4 cards" do
+
+          end
+        end
+
       end
     end
   end

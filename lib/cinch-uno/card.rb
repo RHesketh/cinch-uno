@@ -16,5 +16,11 @@ module Uno
     def self.colors
       [:red, :green, :blue, :yellow]
     end
+
+    def wild?
+      return true if self.type == :wild
+      return true if self.type == :wild_draw_four
+      return false
+    end
   end
 end
