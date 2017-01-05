@@ -50,12 +50,12 @@ module Uno
     end
 
     def play(player, card_played, color_choice = nil)
-      raise NoColorChosenError if card_played.type == :wild && color_choice.nil?
-      raise InvalidColorChoice if color_choice && !Card.colors.include?(color_choice)
       raise GameIsOverError if @state == :game_over
       raise GameHasNotStartedError unless @state == :waiting_for_player_to_move
       raise NotPlayersTurnError unless player == current_player
       raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
+      raise NoColorChosenError if card_played.wild? && color_choice.nil?
+      raise InvalidColorChoice if color_choice && !Card.colors.include?(color_choice)
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
       # Take the card from the player and put it on top of the discard pile
