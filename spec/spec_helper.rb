@@ -1,2 +1,2 @@
 require 'cinch'
-require 'cinch-uno'
+require 'uno'

@@ -1,0 +1,6 @@
+require 'uno/rules.rb'
+require 'uno/game.rb'
+require 'uno/player.rb'
+require 'uno/deck.rb'
+require 'uno/card.rb'
+require 'uno/errors.rb'
