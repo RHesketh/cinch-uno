@@ -111,8 +111,22 @@ module Uno
         expect(Rules.card_played_changes_color?(Card.new(:wild))).to eq true
       end
 
+      it "Wild Draw Four cards change to the specified color" do
+        expect(Rules.card_played_changes_color?(Card.new(:wild_draw_four))).to eq true
+      end
+
       it "Normal cards don't change to the specified color" do
         expect(Rules.card_played_changes_color?(Card.new(:four, :green))).to eq false
+      end
+    end
+
+    describe "#card_initiates_a_challenge?" do
+      it "Wild Draw Four cards initiate an automatic challenge" do
+        expect(Rules.card_initiates_a_challenge?(Card.new(:wild_draw_four))).to eq true
+      end
+
+      it "Normal cards don't initiate an automatic challenge" do
+        expect(Rules.card_initiates_a_challenge?(Card.new(:four, :blue))).to eq false
       end
     end
   end

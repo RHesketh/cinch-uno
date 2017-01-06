@@ -462,8 +462,9 @@ module Uno
         before(:each) do
           allow(Rules).to receive(:card_can_be_played?).and_return(true)
 
-          game.add_player spy("Player", name: "Char", hand: [])
-          game.add_player spy("Player", name: "angelphish", hand: [])
+          fake_hand = spy("Hand", count: 5)
+          game.add_player spy("Player", name: "Char", hand: fake_hand)
+          game.add_player spy("Player", name: "angelphish", hand: fake_hand)
 
           game.start
         end
@@ -481,7 +482,32 @@ module Uno
         end
 
         context "When provided with a valid color choice" do
-          it "Forces the next player to pick up 4 cards" do
+          before(:each) do
+            played_card = Card.new(:wild_draw_four)
+            allow(game.current_player).to receive(:take_card_from_hand).and_return(played_card)
+            game.play(game.current_player, played_card, :yellow)
+          end
+
+          it "The game can't be restarted" do
+            expect{game.start}.to raise_error(GameHasStartedError)
+          end
+
+          it "Normal moves can't be made" do
+            expect{game.play(game.current_player, Card.new(:two, :yellow))}.to raise_error(WaitingForWD4Response)
+          end
+
+          it "Players can't be added" do
+            expect{game.add_player(Player.new("Gatecrasher"))}.to raise_error(GameHasStartedError)
+          end
+
+          it "Players can't be skip their turn" do
+            expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4Response)
+          end
+
+          it "the next card on the discard pile has the color chosen" do
+
+            expect(game.discard_pile.last.color).to eq :yellow
+          end
 
           end
         end

@@ -34,6 +34,12 @@ module Uno
 
       def card_played_changes_color?(card_played)
         return true if card_played.type == :wild
+        return true if card_played.type == :wild_draw_four
+        return false
+      end
+
+      def card_initiates_a_challenge?(card_played)
+        return true if card_played.type == :wild_draw_four
         return false
       end
     end
