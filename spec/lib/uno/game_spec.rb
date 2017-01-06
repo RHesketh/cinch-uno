@@ -227,6 +227,16 @@ module Uno
 
         expect{game.skip(gatecrasher)}.to raise_error(NotPlayersTurnError)
       end
+
+      it "A player cannot skip if the game is not in progress" do
+        expect_any_instance_of(GameState).to receive(:game_in_progress?).and_return(false)
+        expect{game.skip(game.current_player)}.to raise_error(GameHasNotStartedError)
+      end
+
+      it "A player cannot skip if the game is awaiting a wd4 response" do
+        expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
+        expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4Response)
+      end
     end
 
     context "When a valid move is made..." do

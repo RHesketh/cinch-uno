@@ -79,6 +79,8 @@ module Uno
 
     def skip(player)
       raise NotPlayersTurnError if player != current_player
+      raise GameHasNotStartedError unless @state.game_in_progress?
+      raise WaitingForWD4Response if @state.is? :awaiting_wd4_response
 
       current_player.put_card_in_hand @draw_pile.pop
 
