@@ -63,7 +63,6 @@ module Uno
       raise InvalidColorChoiceError if color_choice && !Card.colors.include?(color_choice)
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
-      # Take the card from the player and put it on top of the discard pile
       @discard_pile.push current_player.take_card_from_hand(card_played)
       @state.set(:game_over) if current_player.hand.size == 0
 
