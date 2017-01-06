@@ -519,6 +519,18 @@ module Uno
             expect(game.discard_pile.last.color).to eq :yellow
           end
 
+          context "and the next player challenges" do
+            context "and you are guilty" do
+              xit "you draw 4 cards"
+            end
+
+            context "but you played WD4 correctly" do
+              xit "they draw 6 cards"
+            end
+          end
+
+          context "and the next player accepts the play" do
+            xit "they draw 4 cards"
           end
         end
 
