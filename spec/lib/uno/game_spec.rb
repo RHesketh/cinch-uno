@@ -498,6 +498,10 @@ module Uno
             game.play(game.current_player, played_card, :yellow)
           end
 
+          it "The game state is :awaiting_wd4_response" do
+            expect(game.state).to eq :awaiting_wd4_response
+          end
+
           it "The game can't be restarted" do
             expect{game.start}.to raise_error(GameHasStartedError)
           end
