@@ -235,7 +235,7 @@ module Uno
 
       it "A player cannot skip if the game is awaiting a wd4 response" do
         expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
-        expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4Response)
+        expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4ResponseError)
       end
     end
 
@@ -453,7 +453,7 @@ module Uno
 
         context "When provided with a color choice that is not an uno card color" do
           it "Throws an error" do
-            expect{game.play(game.current_player, Card.new(:wild), :butt)}.to raise_error(InvalidColorChoice)
+            expect{game.play(game.current_player, Card.new(:wild), :butt)}.to raise_error(InvalidColorChoiceError)
           end
         end
 
@@ -487,7 +487,7 @@ module Uno
 
         context "When provided with a color choice that is not an uno card color" do
           it "Throws an error" do
-            expect{game.play(game.current_player, Card.new(:wild_draw_four), :butt)}.to raise_error(InvalidColorChoice)
+            expect{game.play(game.current_player, Card.new(:wild_draw_four), :butt)}.to raise_error(InvalidColorChoiceError)
           end
         end
 
@@ -507,7 +507,7 @@ module Uno
           end
 
           it "Normal moves can't be made" do
-            expect{game.play(game.current_player, Card.new(:two, :yellow))}.to raise_error(WaitingForWD4Response)
+            expect{game.play(game.current_player, Card.new(:two, :yellow))}.to raise_error(WaitingForWD4ResponseError)
           end
 
           it "Players can't be added" do
@@ -515,7 +515,7 @@ module Uno
           end
 
           it "Players can't be skip their turn" do
-            expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4Response)
+            expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4ResponseError)
           end
 
           it "the next card on the discard pile has the color chosen" do

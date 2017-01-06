@@ -57,10 +57,10 @@ module Uno
       raise GameIsOverError if @state.is? :game_over
       raise GameHasNotStartedError unless @state.game_in_progress?
       raise NotPlayersTurnError unless player == current_player
-      raise WaitingForWD4Response if @state.is? :awaiting_wd4_response
+      raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
       raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
       raise NoColorChosenError if card_played.wild? && color_choice.nil?
-      raise InvalidColorChoice if color_choice && !Card.colors.include?(color_choice)
+      raise InvalidColorChoiceError if color_choice && !Card.colors.include?(color_choice)
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
       # Take the card from the player and put it on top of the discard pile
@@ -80,7 +80,7 @@ module Uno
     def skip(player)
       raise NotPlayersTurnError if player != current_player
       raise GameHasNotStartedError unless @state.game_in_progress?
-      raise WaitingForWD4Response if @state.is? :awaiting_wd4_response
+      raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
 
       current_player.put_card_in_hand @draw_pile.pop
 
