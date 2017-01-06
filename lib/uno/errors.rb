@@ -12,4 +12,5 @@ module Uno
   class GameIsOverError < StandardError; end
   class NoColorChosenError < StandardError; end
   class InvalidColorChoice < StandardError; end
+  class WaitingForWD4Response < StandardError; end
 end

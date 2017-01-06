@@ -1,9 +1,12 @@
 module Uno
   class Game
-    attr_reader :state
     attr_reader :discard_pile
     attr_reader :draw_pile
     attr_reader :players
+
+    def state
+      @state.state
+    end
 
     def current_player
       @players[@current_player_index]
@@ -14,14 +17,15 @@ module Uno
     end
 
     def initialize
-      @state = :waiting_to_start
+      @state = GameState.new
+      @state.set(:waiting_to_start)
 
       @deck = Deck.generate
       @players = []
     end
 
     def start
-      raise GameHasStartedError unless @state == :waiting_to_start
+      raise GameHasStartedError unless @state.is? :waiting_to_start
       raise NotEnoughPlayersError unless players.count >= 2
 
       @deck.shuffle!
@@ -39,19 +43,19 @@ module Uno
         end
       end
 
-      @state = :waiting_for_player_to_move
+      @state.set(:waiting_for_player_to_move)
     end
 
     def add_player(player)
-      raise GameIsOverError if @state == :game_over
-      raise GameHasStartedError unless @state == :waiting_to_start
+      raise GameIsOverError if @state.is? :game_over
+      raise GameHasStartedError unless @state.is? :waiting_to_start
 
       @players << player unless players.include?(player)
     end
 
     def play(player, card_played, color_choice = nil)
-      raise GameIsOverError if @state == :game_over
-      raise GameHasNotStartedError unless @state == :waiting_for_player_to_move
+      raise GameIsOverError if @state.is? :game_over
+      raise GameHasNotStartedError unless @state.game_in_progress?
       raise NotPlayersTurnError unless player == current_player
       raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
       raise NoColorChosenError if card_played.wild? && color_choice.nil?
@@ -60,7 +64,7 @@ module Uno
 
       # Take the card from the player and put it on top of the discard pile
       @discard_pile.push current_player.take_card_from_hand(card_played)
-      @state = :game_over if current_player.hand.size == 0
+      @state.set(:game_over) if current_player.hand.size == 0
 
       # Apply any special actions the card demands
       @players = @players.reverse if Rules.play_is_reversed?(card_played, @players.count)

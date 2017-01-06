@@ -1,3 +1,4 @@
+require 'uno/game_state.rb'
 require 'uno/rules.rb'
 require 'uno/game.rb'
 require 'uno/player.rb'
