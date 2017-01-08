@@ -73,6 +73,7 @@ module Uno
         top_card = @discard_pile.pop
         @draw_pile = @discard_pile.shuffle
         @discard_pile = [top_card]
+
         notify_observers(:draw_pile_empty)
       end
 
@@ -97,7 +98,7 @@ module Uno
     end
 
     def challenge(challenger)
-      raise NoWD4ChallengeActiveError.new unless @state.is? :awaiting_wd4_response
+      raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
       raise NotPlayersTurnError unless challenger == next_player
 
       if Rules.wd4_was_played_legally?(current_player.hand, discard_pile)
@@ -111,7 +112,7 @@ module Uno
     end
 
     def accept(challenger)
-      raise NoWD4ChallengeActiveError.new unless @state.is? :awaiting_wd4_response
+      raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
       raise NotPlayersTurnError unless challenger == next_player
 
       4.times {next_player.put_card_in_hand @draw_pile.pop}
