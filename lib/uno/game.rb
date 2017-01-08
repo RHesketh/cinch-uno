@@ -69,17 +69,9 @@ module Uno
       @discard_pile.push current_player.take_card_from_hand(card_played)
       @state.set(:game_over) if current_player.hand.size == 0
 
-      if @draw_pile.empty?
-        top_card = @discard_pile.pop
-        @draw_pile = @discard_pile.shuffle
-        @discard_pile = [top_card]
-
-        notify_observers(:draw_pile_empty)
-      end
-
       # Apply any special actions the card demands
       @players = @players.reverse if Rules.play_is_reversed?(card_played, @players.count)
-      2.times {next_player.put_card_in_hand @draw_pile.pop} if Rules.next_player_must_draw_two?(card_played)
+      2.times {next_player.put_card_in_hand draw_card_from_draw_pile} if Rules.next_player_must_draw_two?(card_played)
       card_played.color = color_choice if Rules.card_played_changes_color?(card_played)
       @state.set(:awaiting_wd4_response) if Rules.card_initiates_a_challenge?(card_played)
 
@@ -92,7 +84,7 @@ module Uno
       raise GameHasNotStartedError unless @state.game_in_progress?
       raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
 
-      current_player.put_card_in_hand @draw_pile.pop
+      current_player.put_card_in_hand draw_card_from_draw_pile
 
       move_to_next_player
     end
@@ -102,9 +94,9 @@ module Uno
       raise NotPlayersTurnError unless challenger == next_player
 
       if Rules.wd4_was_played_legally?(current_player.hand, discard_pile)
-        6.times {next_player.put_card_in_hand @draw_pile.pop}
+        6.times {next_player.put_card_in_hand draw_card_from_draw_pile}
       else
-        4.times {current_player.put_card_in_hand @draw_pile.pop}
+        4.times {current_player.put_card_in_hand draw_card_from_draw_pile}
         move_to_next_player
       end
 
@@ -115,12 +107,26 @@ module Uno
       raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
       raise NotPlayersTurnError unless challenger == next_player
 
-      4.times {next_player.put_card_in_hand @draw_pile.pop}
+      4.times {next_player.put_card_in_hand draw_card_from_draw_pile}
 
       @state.set(:waiting_for_player_to_move)
     end
 
     private
+
+    def draw_card_from_draw_pile
+      drawn_card = @draw_pile.pop
+
+      if @draw_pile.empty?
+        top_card = @discard_pile.pop
+        @draw_pile = @discard_pile.shuffle
+        @discard_pile = [top_card]
+
+        notify_observers(:draw_pile_empty)
+      end
+
+      drawn_card
+    end
 
     def skip_next_player
       move_to_next_player

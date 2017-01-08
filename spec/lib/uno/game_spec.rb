@@ -197,6 +197,23 @@ module Uno
         game.start
       end
 
+      context "If the draw pile becomes empty" do
+        before do
+          expect(game.draw_pile).to receive(:empty?).and_return(true)
+        end
+
+        it "The discard pile is reshuffled and becomes the draw pile" do
+          discard_pile_count = game.discard_pile.count
+          game.skip(game.current_player)
+          expect(game.draw_pile.count).to eq discard_pile_count - 1
+        end
+
+        it "Emits an event to let the outside world know this has happened" do
+          expect(game).to receive(:notify_observers).with(:draw_pile_empty)
+          game.skip(game.current_player)
+        end
+      end
+
       it "Control goes to the next player" do
         current_player_index = game.players.find_index(game.current_player)
         next_player_index = current_player_index + 1 % game.players.count
@@ -247,24 +264,6 @@ module Uno
         game.add_player Player.new("angelphish")
 
         game.start
-      end
-
-      context "If the draw pile becomes empty" do
-        before do
-          expect(Rules).to receive(:card_can_be_played?).and_return(true)
-          expect(game.draw_pile).to receive(:empty?).and_return(true)
-        end
-
-        it "The discard pile is reshuffled and becomes the draw pile" do
-          discard_pile_count = game.discard_pile.count
-          game.play(game.current_player, game.current_player.hand.first)
-          expect(game.draw_pile.count).to eq discard_pile_count
-        end
-
-        it "Emits an event to let the outside world know this has happened" do
-          expect(game).to receive(:notify_observers).with(:draw_pile_empty)
-          game.play(game.current_player, game.current_player.hand.first)
-        end
       end
 
       context "If that was the player's last card" do
