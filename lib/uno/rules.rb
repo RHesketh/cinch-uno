@@ -13,6 +13,7 @@ module Uno
       end
 
       def next_player_is_skipped?(card_played, player_count)
+        return true if card_played.type == :wild_draw_four
         return true if card_played.type == :skip
         return true if card_played.type == :reverse && player_count <= 2
         return true if card_played.type == :draw_two
@@ -41,6 +42,13 @@ module Uno
       def card_initiates_a_challenge?(card_played)
         return true if card_played.type == :wild_draw_four
         return false
+      end
+
+      def wd4_was_played_legally?(wd4_players_hand, discard_pile)
+        played_on_card = discard_pile[1]
+
+        return false if wd4_players_hand.any?{|card| card.color == played_on_card.color}
+        return true
       end
     end
   end

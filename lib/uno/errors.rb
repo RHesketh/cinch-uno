@@ -13,4 +13,5 @@ module Uno
   class NoColorChosenError < StandardError; end
   class InvalidColorChoiceError < StandardError; end
   class WaitingForWD4ResponseError < StandardError; end
+  class NoWD4ChallengeActiveError < StandardError; end
 end

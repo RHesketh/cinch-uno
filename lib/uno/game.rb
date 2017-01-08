@@ -86,6 +86,29 @@ module Uno
       move_to_next_player
     end
 
+    def challenge(challenger)
+      raise NoWD4ChallengeActiveError.new unless @state.is? :awaiting_wd4_response
+      raise NotPlayersTurnError unless challenger == next_player
+
+      if Rules.wd4_was_played_legally?(current_player.hand, discard_pile)
+        6.times {next_player.put_card_in_hand @draw_pile.pop}
+      else
+        4.times {current_player.put_card_in_hand @draw_pile.pop}
+        move_to_next_player
+      end
+
+      @state.set(:waiting_for_player_to_move)
+    end
+
+    def accept(challenger)
+      raise NoWD4ChallengeActiveError.new unless @state.is? :awaiting_wd4_response
+      raise NotPlayersTurnError unless challenger == next_player
+
+      4.times {next_player.put_card_in_hand @draw_pile.pop}
+
+      @state.set(:waiting_for_player_to_move)
+    end
+
     private
 
     def skip_next_player

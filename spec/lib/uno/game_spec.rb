@@ -522,22 +522,105 @@ module Uno
 
             expect(game.discard_pile.last.color).to eq :yellow
           end
+        end
+      end
+    end
 
-          context "and the next player challenges" do
-            context "and you are guilty" do
-              xit "you draw 4 cards"
-            end
+    describe "WD4 challenges" do
+      before(:each) do
+        allow(Rules).to receive(:card_can_be_played?).and_return(true)
 
-            context "but you played WD4 correctly" do
-              xit "they draw 6 cards"
-            end
-          end
+        fake_hand = spy("Hand", count: 5)
+        game.add_player spy("Player", name: "Char", hand: fake_hand)
+        game.add_player spy("Player", name: "angelphish", hand: fake_hand)
 
-          context "and the next player accepts the play" do
-            xit "they draw 4 cards"
-          end
+        game.start
+      end
+
+      describe "#challenge(challenger)" do
+        it "Throws an error if a WD4 challenge has not been issued" do
+          expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(false)
+          expect{game.challenge(game.next_player)}.to raise_error(NoWD4ChallengeActiveError)
         end
 
+        it "Throws an error if the challenger is not the next player" do
+          expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
+          expect{game.challenge(game.current_player)}.to raise_error(NotPlayersTurnError)
+        end
+
+        describe "When a challenge has been made at the right time" do
+          before(:each) do
+            expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
+          end
+
+          it "the game goes back to waiting for a player's move" do
+            game.challenge(game.next_player)
+
+            expect(game.state).to eq :waiting_for_player_to_move
+          end
+
+          describe "and the WD4 was played illegally" do
+            before(:each) do
+              expect(Rules).to receive(:wd4_was_played_legally?).and_return(false)
+            end
+
+            it "the current player has to pick up 4 cards" do
+              expect(game.current_player).to receive(:put_card_in_hand).exactly(4).times
+              game.challenge(game.next_player)
+            end
+
+            it "play moves to the next player" do
+              challenger = game.next_player
+              game.challenge(game.next_player)
+              expect(game.current_player).to eq challenger
+            end
+          end
+
+          describe "But the WD4 was played legally" do
+            before(:each) do
+              expect(Rules).to receive(:wd4_was_played_legally?).and_return(true)
+            end
+
+            it "the challenger has to pick up 6 cards" do
+              expect(game.next_player).to receive(:put_card_in_hand).exactly(6).times
+              game.challenge(game.next_player)
+            end
+
+            it "play stays on the same player" do
+              current_player = game.current_player
+              game.challenge(game.next_player)
+              expect(game.current_player).to eq current_player
+            end
+          end
+        end
+      end
+
+      describe "#accept(next_player)" do
+        it "Throws an error if a WD4 challenge has not been issued" do
+          expect_any_instance_of(GameState).to receive(:state).and_return(:waiting_for_player_to_move)
+          expect{game.accept(game.next_player)}.to raise_error(NoWD4ChallengeActiveError)
+        end
+
+        it "Throws an error if the player accepting is not the next player" do
+          expect_any_instance_of(GameState).to receive(:state).and_return(:awaiting_wd4_response)
+          expect{game.accept(game.current_player)}.to raise_error(NotPlayersTurnError)
+        end
+
+        describe "When a move has been accepted at the right time" do
+          before(:each) do
+            expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
+          end
+
+          it "the game goes back to waiting for a player's move" do
+            game.accept(game.next_player)
+            expect(game.state).to eq :waiting_for_player_to_move
+          end
+
+          it "Next player has to pick up 4 cards from the discard pile" do
+            expect(game.next_player).to receive(:put_card_in_hand).exactly(4).times
+            game.accept(game.next_player)
+          end
+        end
       end
     end
   end

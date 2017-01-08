@@ -53,6 +53,14 @@ module Uno
     end
 
     describe "next_player_is_skipped?(card, player_count)" do
+      it "Wild Draw Four cards cause the next player to skip their turn" do
+        expect(Rules.next_player_is_skipped?(Card.new(:wild_draw_four, :blue), 2)).to eq true
+      end
+
+      it "Wild cards don't cause the next player to skip their turn" do
+        expect(Rules.next_player_is_skipped?(Card.new(:wild, :blue), 2)).to eq false
+      end
+
       it "Draw two cards cause the next player to skip their turn" do
         expect(Rules.next_player_is_skipped?(Card.new(:draw_two, :blue), 2)).to eq true
       end
@@ -127,6 +135,24 @@ module Uno
 
       it "Normal cards don't initiate an automatic challenge" do
         expect(Rules.card_initiates_a_challenge?(Card.new(:four, :blue))).to eq false
+      end
+    end
+
+    describe "#wd4_was_played_legally?(wd4_players_hand, discard_pile)" do
+      describe "WD4 player has a card matching the colour of the card before WD4" do
+        it "Is not a legal play" do
+          hand = [Card.new(:five, :red)]
+          discard_pile = [Card.new(:wild_draw_four), Card.new(:four, :red)]
+          expect(Rules.wd4_was_played_legally?(hand, discard_pile)).to eq false
+        end
+      end
+
+      describe "WD4 player has no cards matching the colour of the card before WD4" do
+        it "Is a legal play" do
+          hand = [Card.new(:five, :blue)]
+          discard_pile = [Card.new(:wild_draw_four), Card.new(:four, :red)]
+          expect(Rules.wd4_was_played_legally?(hand, discard_pile)).to eq true
+        end
       end
     end
   end
