@@ -1,5 +1,8 @@
+require "observer"
+
 module Uno
   class Game
+    include Observable
     attr_reader :discard_pile
     attr_reader :draw_pile
     attr_reader :players
@@ -65,6 +68,13 @@ module Uno
 
       @discard_pile.push current_player.take_card_from_hand(card_played)
       @state.set(:game_over) if current_player.hand.size == 0
+
+      if @draw_pile.empty?
+        top_card = @discard_pile.pop
+        @draw_pile = @discard_pile.shuffle
+        @discard_pile = [top_card]
+        notify_observers(:draw_pile_empty)
+      end
 
       # Apply any special actions the card demands
       @players = @players.reverse if Rules.play_is_reversed?(card_played, @players.count)
