@@ -1,3 +1,6 @@
+# Important Note
+Everything in this repository, *including the README that you are currently reading*, is currently under active development. This is pre-alpha code. As long as this message is displayed, information below may not yet be implemented in the code and the code may not be suitable for production use.
+
 # Uno plugin
 [![Gem Version](https://badge.fury.io/rb/cinch-uno.svg)](https://badge.fury.io/rb/cinch-uno)
 [![License Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/UNLICENSE)
