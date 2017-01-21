@@ -11,10 +11,12 @@ module Cinch
       it "Starter test - delete me" do
         test_bot = make_bot(Cinch::Plugins::Uno)
 
-        sent_message = make_message(test_bot, 'hey bro')
+        sent_message = make_message(test_bot, '!fart')
 
-        get_replies(sent_message).each do |reply|
-          puts reply
+        replies = get_replies(sent_message)
+        puts "*** #{replies.count} replies!"
+        replies.each do |reply|
+          puts reply.text
         end
       end
     end
