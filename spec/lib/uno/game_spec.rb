@@ -147,8 +147,13 @@ module Uno
       end
 
       it "A player cannot play a card that is not in their hand" do
+        allow(Rules).to receive(:card_can_be_played?).and_return(true)
+
+        card_the_player_does_not_have = Uno::Card.new(:zero, :yellow)
+        game.players[0].take_card_from_hand(card_the_player_does_not_have) if game.players[0].has_card?(card_the_player_does_not_have)
+
         expect{
-          game.play(game.players[0], Uno::Card.new(:zero, :yellow))
+          game.play(game.players[0], card_the_player_does_not_have)
         }.to raise_error(PlayerDoesNotHaveThatCardError)
       end
 
