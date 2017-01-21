@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module Uno
   describe Deck do
-    describe "#generate" do
+    describe "#standard_uno_deck" do
       let(:colors){[:red, :blue, :green, :yellow]}
-      let(:deck) { Uno::Deck.generate }
+      let(:deck) { Uno::Deck.standard_uno_deck }
 
       it 'Returns an array of cards' do
         expect(deck).to be_an Array

@@ -139,7 +139,7 @@ module Uno
     end
 
     describe "#wd4_was_played_legally?(wd4_players_hand, discard_pile)" do
-      describe "WD4 player has a card matching the colour of the card before WD4" do
+      describe "WD4 player had a card matching the colour of the top of the discard pile" do
         it "Is not a legal play" do
           hand = [Card.new(:five, :red)]
           discard_pile = [Card.new(:wild_draw_four), Card.new(:four, :red)]
@@ -147,7 +147,7 @@ module Uno
         end
       end
 
-      describe "WD4 player has no cards matching the colour of the card before WD4" do
+      describe "WD4 player had no cards matching the colour of the top of the discard pile" do
         it "Is a legal play" do
           hand = [Card.new(:five, :blue)]
           discard_pile = [Card.new(:wild_draw_four), Card.new(:four, :red)]

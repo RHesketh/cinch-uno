@@ -12,13 +12,13 @@ module Uno
       expect(subject).to have_attributes(:name => "Char")
     end
 
-    describe "#empty_hand!" do
+    describe "#remove_all_cards_from_hand!" do
       it "Removes all cards from the player's hand" do
         card = Card.new(:two, :blue)
 
         subject.put_card_in_hand(card)
 
-        subject.empty_hand!
+        subject.remove_all_cards_from_hand!
 
         expect(subject.hand.size).to eq 0
       end

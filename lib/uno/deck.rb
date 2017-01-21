@@ -1,6 +1,6 @@
 module Uno
   class Deck
-    def self.generate
+    def self.standard_uno_deck
       deck = []
 
       Card.colors.each do |color|

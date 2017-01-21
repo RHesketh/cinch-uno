@@ -8,7 +8,7 @@ module Uno
       @hand = []
     end
 
-    def empty_hand!
+    def remove_all_cards_from_hand!
       @hand = []
     end
 

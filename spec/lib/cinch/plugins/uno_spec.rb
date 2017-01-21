@@ -7,11 +7,10 @@ include Cinch::Test
 module Cinch
   module Plugins
     describe Uno do
+      subject { make_bot(Cinch::Plugins::Uno) }
 
       it "Starter test - delete me" do
-        test_bot = make_bot(Cinch::Plugins::Uno)
-
-        sent_message = make_message(test_bot, '!fart')
+        sent_message = make_message(subject, '!fart')
 
         replies = get_replies(sent_message)
         puts "*** #{replies.count} replies!"

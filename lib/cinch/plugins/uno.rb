@@ -1,6 +1,5 @@
 module Cinch
   module Plugins
-    # Interfaces with Cinch and IRC chatters
     class Uno
       include Cinch::Plugin
 

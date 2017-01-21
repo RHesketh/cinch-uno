@@ -21,9 +21,9 @@ module Uno
 
     def initialize
       @state = GameState.new
-      @state.set(:waiting_to_start)
+      set_game_state_to :waiting_to_start
 
-      @deck = Deck.generate
+      @deck = Deck.standard_uno_deck
       @players = []
     end
 
@@ -39,14 +39,12 @@ module Uno
       @current_player_index = 0
 
       @players.each do |player|
-        player.empty_hand!
+        player.remove_all_cards_from_hand!
 
-        7.times do
-          player.put_card_in_hand @draw_pile.pop
-        end
+        draw_multiple_cards(player, 7)
       end
 
-      @state.set(:waiting_for_player_to_move)
+      set_game_state_to :waiting_for_player_to_move
     end
 
     def add_player(player)
@@ -66,16 +64,11 @@ module Uno
       raise InvalidColorChoiceError if color_choice && !Card.colors.include?(color_choice)
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
-      @discard_pile.push current_player.take_card_from_hand(card_played)
-      @state.set(:game_over) if current_player.hand.size == 0
+      put_played_card_onto_discard_pile(card_played)
+      check_if_game_has_finished
 
-      # Apply any special actions the card demands
-      @players = @players.reverse if Rules.play_is_reversed?(card_played, @players.count)
-      2.times {next_player.put_card_in_hand draw_card_from_draw_pile} if Rules.next_player_must_draw_two?(card_played)
-      card_played.color = color_choice if Rules.card_played_changes_color?(card_played)
-      @state.set(:awaiting_wd4_response) if Rules.card_initiates_a_challenge?(card_played)
+      apply_game_rules(card_played, color_choice)
 
-      skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
       move_to_next_player
     end
 
@@ -94,25 +87,33 @@ module Uno
       raise NotPlayersTurnError unless challenger == next_player
 
       if Rules.wd4_was_played_legally?(current_player.hand, discard_pile)
-        6.times {next_player.put_card_in_hand draw_card_from_draw_pile}
+        draw_multiple_cards(next_player, 6)
       else
-        4.times {current_player.put_card_in_hand draw_card_from_draw_pile}
+        draw_multiple_cards(current_player, 4)
         move_to_next_player
       end
 
-      @state.set(:waiting_for_player_to_move)
+      set_game_state_to :waiting_for_player_to_move
     end
 
     def accept(challenger)
       raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
       raise NotPlayersTurnError unless challenger == next_player
 
-      4.times {next_player.put_card_in_hand draw_card_from_draw_pile}
+      draw_multiple_cards(next_player, 4)
 
-      @state.set(:waiting_for_player_to_move)
+      set_game_state_to :waiting_for_player_to_move
     end
 
     private
+
+    def apply_game_rules(card_played, color_choice)
+      reverse_the_play_order if Rules.play_is_reversed?(card_played, @players.count)
+      draw_multiple_cards(next_player, 2) if Rules.next_player_must_draw_two?(card_played)
+      card_played.color = color_choice if Rules.card_played_changes_color?(card_played)
+      @state.set(:awaiting_wd4_response) if Rules.card_initiates_a_challenge?(card_played)
+      skip_next_player if Rules.next_player_is_skipped?(card_played, @players.count)
+    end
 
     def draw_card_from_draw_pile
       drawn_card = @draw_pile.pop
@@ -128,6 +129,21 @@ module Uno
       drawn_card
     end
 
+    def put_played_card_onto_discard_pile(card_played)
+      current_player.take_card_from_hand(card_played)
+      @discard_pile.push card_played
+    end
+
+    def reverse_the_play_order
+      @players = @players.reverse
+    end
+
+    def draw_multiple_cards(player, draw_count)
+      draw_count.times do
+        player.put_card_in_hand draw_card_from_draw_pile
+      end
+    end
+
     def skip_next_player
       move_to_next_player
     end
@@ -138,6 +154,14 @@ module Uno
 
     def next_player_index
       (@current_player_index + 1) % players.count
+    end
+
+    def set_game_state_to(new_state)
+      @state.set new_state
+    end
+
+    def check_if_game_has_finished
+      set_game_state_to :game_over if current_player.hand.empty?
     end
 
   end

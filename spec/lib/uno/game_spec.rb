@@ -50,7 +50,7 @@ module Uno
       end
 
       it "Generate a deck to play with" do
-        expect(Deck).to receive(:generate).and_call_original
+        expect(Deck).to receive(:standard_uno_deck).and_call_original
         Uno::Game.new
       end
 
