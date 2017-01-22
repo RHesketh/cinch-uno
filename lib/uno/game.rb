@@ -125,14 +125,18 @@ module Uno
       drawn_card = @draw_pile.pop
 
       if @draw_pile.empty?
-        top_card = @discard_pile.pop
-        @draw_pile = @discard_pile.shuffle
-        @discard_pile = [top_card]
+        reshuffle_discard_pile_into_draw_pile
 
         notify_observers(:draw_pile_empty)
       end
 
       drawn_card
+    end
+
+    def reshuffle_discard_pile_into_draw_pile
+        top_card = @discard_pile.pop
+        @draw_pile = @discard_pile.shuffle
+        @discard_pile = [top_card]
     end
 
     def put_played_card_onto_discard_pile(card_played)
