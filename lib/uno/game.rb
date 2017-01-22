@@ -114,7 +114,7 @@ module Uno
     end
 
     def apply_game_rules(card_played, color_choice)
-      reverse_the_play_order if Rules.play_is_reversed?(card_played, @players.count)
+      reverse_play_order if Rules.play_is_reversed?(card_played, @players.count)
       draw_multiple_cards(next_player, 2) if Rules.next_player_must_draw_two?(card_played)
       card_played.color = color_choice if Rules.card_played_changes_color?(card_played)
       @state.set(:awaiting_wd4_response) if Rules.card_initiates_a_challenge?(card_played)
@@ -140,7 +140,7 @@ module Uno
       @discard_pile.push card_played
     end
 
-    def reverse_the_play_order
+    def reverse_play_order
       @players = @players.reverse
     end
 
