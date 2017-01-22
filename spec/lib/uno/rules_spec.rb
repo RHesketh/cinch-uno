@@ -88,7 +88,7 @@ module Uno
 
     describe "#play_is_reversed?(card, player_count)" do
       it "Normal cards don't cause the play order to be reversed" do
-        expect(Rules.play_is_reversed?(Card.new(:two, :blue), 2)).to eq false
+        expect(Rules.play_is_reversed?(Card.new(:two, :blue), 3)).to eq false
       end
 
       context "When two people are playing" do
