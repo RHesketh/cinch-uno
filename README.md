@@ -5,7 +5,7 @@ Everything in this repository, *including the README that you are currently read
 [![Gem Version](https://badge.fury.io/rb/cinch-uno.svg)](https://badge.fury.io/rb/cinch-uno)
 [![License Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/UNLICENSE)
 
-A plugin for [Cinch](https://github.com/cinchrb/cinch), the IRC bot framework for Ruby. It allows users to play the popular colorful card game in an IRC channel against other IRC users.
+A plugin for [Cinch](https://github.com/cinchrb/cinch), the IRC bot framework for Ruby. It allows users to play the popular colorful card game in an IRC channel with other IRC users.
 
 ## Installation
 First install the gem by running:
