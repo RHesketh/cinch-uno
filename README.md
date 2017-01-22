@@ -41,7 +41,9 @@ bot.start
 
 * **uno**                               - Starts a game of Uno and waits for players to join.
 * **hand**                              - The bot sends you a private message containing your current hand.
+* **pile**                              - Shows the top card on the discard pile
 * **play** [card color] [card type]     - Plays a card.
+* **play** wild [card color]            - Plays a wild card, specifying the colour it will represent for the next player.
 * **skip**                              - Skips your turn and moves to the next player.
 * **challenge**                         - Challenge the validity of the last player's use of Wild Draw Four.
 * **accept**                            - Accept the validity of the last player's use of Wild Draw Four.
