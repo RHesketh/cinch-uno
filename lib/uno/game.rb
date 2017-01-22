@@ -65,11 +65,8 @@ module Uno
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
       put_played_card_onto_discard_pile(card_played)
-
       check_if_game_has_finished
-
       apply_game_rules(card_played, color_choice)
-
       move_to_next_player
     end
 
@@ -79,7 +76,6 @@ module Uno
       raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
 
       current_player.put_card_in_hand draw_card_from_draw_pile
-
       move_to_next_player
     end
 
