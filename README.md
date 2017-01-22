@@ -18,7 +18,7 @@ or, even better, by adding it to your `Gemfile`:
 ```
 gem 'cinch-uno' ~> "0.0.5"
 ```
-and then running `bundle`
+and running `bundle`
 
 Then load it in your bot:
 
