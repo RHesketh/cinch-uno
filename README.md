@@ -4,6 +4,7 @@ Everything in this repository, *including the README that you are currently read
 # Uno plugin
 [![Gem Version](https://badge.fury.io/rb/cinch-uno.svg)](https://badge.fury.io/rb/cinch-uno)
 [![License Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/UNLICENSE)
+[![Test Coverage](https://codeclimate.com/github/RHesketh/cinch-uno/badges/coverage.svg)](https://codeclimate.com/github/RHesketh/cinch-uno/coverage)
 
 A plugin for [Cinch](https://github.com/cinchrb/cinch), the IRC bot framework for Ruby. It allows users to play the popular colorful card game in an IRC channel with other IRC users.
 
