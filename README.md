@@ -28,7 +28,6 @@ require "cinch/plugins/uno"
 
 bot = Cinch::Bot.new do
   configure do |c|
-    # add all required options here
     c.plugins.plugins = [Cinch::Plugins::Uno]
   end
 end
