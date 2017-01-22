@@ -65,6 +65,7 @@ module Uno
       raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
 
       put_played_card_onto_discard_pile(card_played)
+
       check_if_game_has_finished
 
       apply_game_rules(card_played, color_choice)
