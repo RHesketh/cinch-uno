@@ -31,19 +31,9 @@ module Uno
       raise GameHasStartedError unless @state.is? :waiting_to_start
       raise NotEnoughPlayersError unless players.count >= 2
 
-      @deck.shuffle!
-      @discard_pile = [@deck.pop]
-      @draw_pile = @deck
-
-      @players.shuffle
-      @current_player_index = 0
-
-      @players.each do |player|
-        player.remove_all_cards_from_hand!
-
-        draw_multiple_cards(player, 7)
-      end
-
+      set_up_draw_and_discard_piles
+      establish_play_order
+      deal_starting_cards
       set_game_state_to :waiting_for_player_to_move
     end
 
@@ -103,6 +93,25 @@ module Uno
     end
 
     private
+
+    def set_up_draw_and_discard_piles
+      @deck.shuffle!
+      @discard_pile = [@deck.pop]
+      @draw_pile = @deck
+    end
+
+    def establish_play_order
+      @players.shuffle
+      @current_player_index = 0
+    end
+
+    def deal_starting_cards
+      @players.each do |player|
+        player.remove_all_cards_from_hand!
+
+        draw_multiple_cards(player, 7)
+      end
+    end
 
     def apply_game_rules(card_played, color_choice)
       reverse_the_play_order if Rules.play_is_reversed?(card_played, @players.count)
