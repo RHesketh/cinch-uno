@@ -256,6 +256,7 @@ module Uno
       end
 
       it "A player cannot skip if the game is awaiting a wd4 response" do
+        expect_any_instance_of(GameState).to receive(:is?).with(:game_over).and_return(false)
         expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
         expect{game.skip(game.current_player)}.to raise_error(WaitingForWD4ResponseError)
       end
@@ -561,17 +562,19 @@ module Uno
 
       describe "#challenge(challenger)" do
         it "Throws an error if a WD4 challenge has not been issued" do
+          expect_any_instance_of(GameState).to receive(:is?).with(:game_over).and_return(false)
           expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(false)
           expect{game.challenge(game.next_player)}.to raise_error(NoWD4ChallengeActiveError)
         end
 
         it "Throws an error if the challenger is not the next player" do
-          expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
+          expect_any_instance_of(GameState).to receive(:is?).with(:game_over).and_return(false)
           expect{game.challenge(game.current_player)}.to raise_error(NotPlayersTurnError)
         end
 
         describe "When a challenge has been made at the right time" do
           before(:each) do
+            expect_any_instance_of(GameState).to receive(:is?).with(:game_over).and_return(false)
             expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
           end
 
@@ -619,18 +622,19 @@ module Uno
 
       describe "#accept(next_player)" do
         it "Throws an error if a WD4 challenge has not been issued" do
-          expect_any_instance_of(GameState).to receive(:state).and_return(:waiting_for_player_to_move)
+          expect_any_instance_of(GameState).to receive(:state).at_least(:once).and_return(:waiting_for_player_to_move)
           expect{game.accept(game.next_player)}.to raise_error(NoWD4ChallengeActiveError)
         end
 
         it "Throws an error if the player accepting is not the next player" do
-          expect_any_instance_of(GameState).to receive(:state).and_return(:awaiting_wd4_response)
+          expect_any_instance_of(GameState).to receive(:state).at_least(:once).and_return(:awaiting_wd4_response)
           expect{game.accept(game.current_player)}.to raise_error(NotPlayersTurnError)
         end
 
         describe "When a move has been accepted at the right time" do
           before(:each) do
-            expect_any_instance_of(GameState).to receive(:is?).with(:awaiting_wd4_response).and_return(true)
+            expect_any_instance_of(GameState).to receive(:is?).with(:game_over).and_return(false)
+            expect_any_instance_of(GameState).to receive(:is?).at_least(:once).with(:awaiting_wd4_response).and_return(true)
           end
 
           it "the game goes back to waiting for a player's move" do

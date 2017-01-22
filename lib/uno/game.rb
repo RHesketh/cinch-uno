@@ -28,8 +28,8 @@ module Uno
     end
 
     def start
-      raise GameHasStartedError unless @state.is? :waiting_to_start
-      raise NotEnoughPlayersError unless players.count >= 2
+      raise_error_unless_game_is_waiting_to_start
+      raise_error_if_there_are_not_enough_players
 
       set_up_draw_and_discard_piles
       establish_play_order
@@ -38,21 +38,16 @@ module Uno
     end
 
     def add_player(player)
-      raise GameIsOverError if @state.is? :game_over
-      raise GameHasStartedError unless @state.is? :waiting_to_start
+      raise_error_unless_game_is_waiting_to_start
 
       @players << player unless players.include?(player)
     end
 
     def play(player, card_played, color_choice = nil)
-      raise GameIsOverError if @state.is? :game_over
-      raise GameHasNotStartedError unless @state.game_in_progress?
-      raise NotPlayersTurnError unless player == current_player
-      raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
-      raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
-      raise NoColorChosenError if card_played.wild? && color_choice.nil?
-      raise InvalidColorChoiceError if color_choice && !Card.colors.include?(color_choice)
-      raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
+      raise_error_if_game_is_not_in_progress
+      raise_error_if_player_is_out_of_turn(current_player, player)
+      raise_error_if_waiting_for_wild_draw_four_response
+      raise_error_if_move_is_invalid(player, card_played, color_choice, discard_pile)
 
       put_played_card_onto_discard_pile(card_played)
       check_if_game_has_finished
@@ -61,17 +56,18 @@ module Uno
     end
 
     def skip(player)
-      raise NotPlayersTurnError if player != current_player
-      raise GameHasNotStartedError unless @state.game_in_progress?
-      raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
+      raise_error_if_game_is_not_in_progress
+      raise_error_if_player_is_out_of_turn(current_player, player)
+      raise_error_if_waiting_for_wild_draw_four_response
 
       current_player.put_card_in_hand draw_card_from_draw_pile
       move_to_next_player
     end
 
     def challenge(challenger)
-      raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
-      raise NotPlayersTurnError unless challenger == next_player
+      raise_error_if_game_is_not_in_progress
+      raise_error_if_player_is_out_of_turn(next_player, challenger)
+      raise_error_unless_waiting_for_wild_draw_four_response
 
       if Rules.wd4_was_played_legally?(current_player.hand, discard_pile)
         draw_multiple_cards(next_player, 6)
@@ -84,8 +80,9 @@ module Uno
     end
 
     def accept(challenger)
-      raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
-      raise NotPlayersTurnError unless challenger == next_player
+      raise_error_if_game_is_not_in_progress
+      raise_error_if_player_is_out_of_turn(next_player, challenger)
+      raise_error_unless_waiting_for_wild_draw_four_response
 
       draw_multiple_cards(next_player, 4)
 
@@ -126,7 +123,6 @@ module Uno
 
       if @draw_pile.empty?
         reshuffle_discard_pile_into_draw_pile
-
         notify_observers(:draw_pile_empty)
       end
 
@@ -174,5 +170,37 @@ module Uno
       set_game_state_to :game_over if current_player.hand.empty?
     end
 
+    def raise_error_if_game_is_not_in_progress
+      raise GameIsOverError if @state.is? :game_over
+      raise GameHasNotStartedError unless @state.game_in_progress?
+    end
+
+    def raise_error_if_player_is_out_of_turn(expected, actual)
+      raise NotPlayersTurnError unless expected == actual
+    end
+
+    def raise_error_unless_game_is_waiting_to_start
+      raise GameIsOverError if @state.is? :game_over
+      raise GameHasStartedError unless @state.is? :waiting_to_start
+    end
+
+    def raise_error_if_there_are_not_enough_players
+      raise NotEnoughPlayersError unless players.count >= 2
+    end
+
+    def raise_error_if_move_is_invalid(player, card_played, color_choice, discard_pile)
+      raise PlayerDoesNotHaveThatCardError unless player.has_card?(card_played)
+      raise NoColorChosenError if card_played.wild? && color_choice.nil?
+      raise InvalidColorChoiceError if color_choice && !Card.colors.include?(color_choice)
+      raise InvalidMoveError unless Rules.card_can_be_played?(card_played, discard_pile)
+    end
+
+    def raise_error_if_waiting_for_wild_draw_four_response
+      raise WaitingForWD4ResponseError if @state.is? :awaiting_wd4_response
+    end
+
+    def raise_error_unless_waiting_for_wild_draw_four_response
+      raise NoWD4ChallengeActiveError unless @state.is? :awaiting_wd4_response
+    end
   end
 end
